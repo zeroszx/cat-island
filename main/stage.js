@@ -12,7 +12,7 @@ const { BrowserWindow, screen, desktopCapturer } = require('electron');
 const STAGE_CMDS = ['toggle', 'next', 'prev'];
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-function register(ipcMain, getWin, root) {
+function register(ipcMain, getWin, root, onChange = () => {}) {
   let stage = null, opening = false;
 
   async function snapshot(display) {
@@ -31,9 +31,13 @@ function register(ipcMain, getWin, root) {
     if (opening || !win) return;
     opening = true;
     const display = screen.getDisplayMatching(win.getBounds());
-    win.setOpacity(0);                      // pil tidak ikut terfoto & tidak menimpa panggung
+    // pil disembunyikan HANYA selama foto layar diambil. Jangan dibiarkan transparan: player
+    // YouTube di jendela pil menolak memutar bila jendelanya tak terlihat (lagu berikutnya
+    // dari ⏭ jadi macet). Panggung berada di atasnya (level screen-saver) jadi pil tertutup.
+    win.setOpacity(0);
     await sleep(120);
     const shot = await snapshot(display);
+    win.setOpacity(1);
 
     stage = new BrowserWindow({
       ...display.bounds,
@@ -43,16 +47,19 @@ function register(ipcMain, getWin, root) {
       webPreferences: { preload: path.join(root, 'preload.js'), backgroundThrottling: false },
     });
     stage.setAlwaysOnTop(true, 'screen-saver');
+    if (process.env.CAT_DEBUG || process.env.CAT_DEMO) stage.webContents.on('console-message', (_e, _l, msg) => console.log('[stage]', msg));
     stage.loadFile(path.join(root, 'stage.html'));
     stage.webContents.once('did-finish-load', () => {
       stage.webContents.send('stage', { type: 'init', shot, ...data });
       stage.show(); stage.focus();
       opening = false;
+      onChange(true);
     });
     stage.on('closed', () => {
       stage = null; opening = false;
+      onChange(false);
       const w = getWin();
-      if (w && !w.isDestroyed()) { w.setOpacity(1); w.webContents.send('stage-closed'); }
+      if (w && !w.isDestroyed()) w.webContents.send('stage-closed');
     });
   }
 
@@ -60,6 +67,8 @@ function register(ipcMain, getWin, root) {
   ipcMain.on('stage-sync', (_e, data) => { if (stage && !stage.isDestroyed()) stage.webContents.send('stage', { type: 'sync', ...data }); });
   ipcMain.on('stage-cmd', (_e, cmd) => { if (STAGE_CMDS.includes(cmd)) getWin()?.webContents.send('stage-cmd', cmd); });
   ipcMain.on('stage-close', () => stage?.close());
+  ipcMain.on('stage-levels', (_e, lv) => { if (stage && !stage.isDestroyed() && Array.isArray(lv)) stage.webContents.send('stage-levels', lv); });
+  return { isOpen: () => !!stage || opening };
 }
 
 module.exports = { register };

@@ -32,7 +32,9 @@ if (!app.requestSingleInstanceLock()) app.quit();
 // Embed YouTube harus bisa autoplay, dan Cat Island TIDAK boleh muncul sebagai sesi
 // media Windows (kalau muncul, bridge akan membaca widget ini sendiri).
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
-app.commandLine.appendSwitch('disable-features', 'HardwareMediaKeyHandling,MediaSessionService');
+// CalculateNativeWinOcclusion: saat Mode Panggung menutupi pil, Chromium menganggap jendela pil
+// tertutup lalu berhenti menggambarnya -> player YouTube di pil tak pernah mulai (lagu dari ⏭ macet).
+app.commandLine.appendSwitch('disable-features', 'HardwareMediaKeyHandling,MediaSessionService,CalculateNativeWinOcclusion');
 
 let win, tray, media;
 
@@ -70,6 +72,10 @@ function keepOnTop() {
 
 /* ---------------- sembunyi penuh: manual atau saat aplikasi layar penuh ---------------- */
 let fullscreenApp = false, manualHidden = false;
+// laporan mentah bridge. Panggung (Mode Panggung) milik Cat Island sendiri juga terdeteksi
+// "layar penuh"; kalau dihitung, pil disembunyikan dan player YouTube di dalamnya macet.
+let fullscreenRaw = false, stageCtl = null;
+function updateFullscreen() { fullscreenApp = fullscreenRaw && !stageCtl?.isOpen(); applyVisibility(); }
 function applyVisibility() {
   if (!win) return;
   const show = !manualHidden && !(settings.autoFs !== false && fullscreenApp);
@@ -121,7 +127,7 @@ function startMedia() {
       if (!line.trim()) continue;
       let msg;
       try { msg = JSON.parse(line); } catch { continue; }
-      if (msg.type === 'fullscreen') { fullscreenApp = !!msg.on; applyVisibility(); }
+      if (msg.type === 'fullscreen') { fullscreenRaw = !!msg.on; updateFullscreen(); }
       else win?.webContents.send('media', msg);
     }
   });
@@ -151,7 +157,7 @@ ipcMain.on('set-mode', (_e, m) => { if (SIZES[m] && m !== mode) { mode = m; appl
 youtube.register(ipcMain, () => settings.ytKey, path.join(dataDir, 'yt-cache.json'));
 eq.register(ipcMain, () => win);
 apo.register(ipcMain);
-stage.register(ipcMain, () => win, __dirname);
+stageCtl = stage.register(ipcMain, () => win, __dirname, updateFullscreen);
 
 // seret cover untuk memindahkan widget
 let dragFrom = null;

@@ -49,4 +49,6 @@ contextBridge.exposeInMainWorld('island', {
   stageSync: (d) => ipcRenderer.send('stage-sync', d),
   stageCmd: (c) => ipcRenderer.send('stage-cmd', c),
   stageClose: () => ipcRenderer.send('stage-close'),
+  stageLevels: (lv) => ipcRenderer.send('stage-levels', lv),
+  onStageLevels: on('stage-levels'),
 });

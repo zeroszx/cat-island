@@ -19,11 +19,15 @@ function embed(id, t) {
   box.classList.remove('on');
   box.innerHTML = '';
   frame = null; info = {}; cmd = () => {}; playingSince = 0;
+  console.log('[stage] embed', id, 't=', Math.round(t || 0));
   if (!id) return;
   const f = document.createElement('iframe');
   f.allow = 'autoplay; encrypted-media';
   f.tabIndex = -1;
-  f.src = `https://www.youtube-nocookie.com/embed/${id}?controls=0&disablekb=1&fs=0&iv_load_policy=3`
+  // Sengaja www.youtube.com, BUKAN youtube-nocookie: YouTube hanya membiarkan satu player aktif
+  // per origin. Player bersuara Cat Island memakai youtube-nocookie; bila panggung memakai origin
+  // yang sama, player bersuara dijeda/macet (lagu dari ⏭/← tidak terputar).
+  f.src = `https://www.youtube.com/embed/${id}?controls=0&disablekb=1&fs=0&iv_load_policy=3`
     + `&modestbranding=1&playsinline=1&rel=0&enablejsapi=1&autoplay=1&mute=1&start=${Math.max(0, Math.floor(t || 0))}`;
   box.appendChild(f);
   frame = f;
@@ -37,12 +41,12 @@ function embed(id, t) {
 addEventListener('message', (e) => {
   if (!frame || e.source !== frame.contentWindow) return;
   let d; try { d = JSON.parse(e.data); } catch { return; }
-  if (d.event === 'onStateChange') info.playerState = d.info;
+  if (d.event === 'onStateChange') { info.playerState = d.info; console.log('[stage] state', d.info); }
   else if (d.event === 'infoDelivery' && d.info) {
     if (!info.ready) { info.ready = true; noCaptions(); }
     Object.assign(info, d.info);
     if (d.info.muted === false) cmd('mute');                      // jangan sampai suaranya dobel
-  } else if (d.event === 'onError') { $('vid').classList.remove('on'); }   // video dilarang di-embed -> cover saja
+  } else if (d.event === 'onError') { console.log('[stage] error', d.info); $('vid').classList.remove('on'); }   // video dilarang di-embed -> cover saja
 });
 
 const noCaptions = () => { cmd('unloadModule', ['captions']); cmd('unloadModule', ['cc']); };
@@ -83,8 +87,10 @@ api.onStage((m) => {
   layout();
   apply(m);
   requestAnimationFrame(() => document.body.classList.add('on'));
-  Viz.initAudio();
+  // sengaja TIDAK memanggil Viz.initAudio(): level datang dari widget (lihat onStageLevels)
 });
+
+api.onStageLevels((lv) => Viz.setFeed(lv));
 
 /* ---------------- kontrol ---------------- */
 let closing = false;

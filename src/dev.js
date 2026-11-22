@@ -3,7 +3,7 @@
    Hanya aktif bila widget dijalankan dengan variabel lingkungan
    CAT_DEMO=<mode>, mis. dari PowerShell:
      $env:CAT_DEMO='tasks'; .\node_modules\electron\dist\electron.exe .
-   Mode: open | tasks | settings | eq | apo | stage | recs | shuffle | play | playsound | viz:<gaya>
+   Mode: open | tasks | settings | eq | apo | stage | stage-next | next-only | stage-skip | recs | shuffle | play | playsound | viz:<gaya>
    ========================================================= */
 const waitFor = (cond, ms) => new Promise((ok) => {
   const t0 = Date.now();
@@ -24,6 +24,23 @@ api.onDemo(async (mode) => {
       break;
     case 'stage':                                    // buka Mode Panggung
       setState('open'); setTimeout(openStage, 2500); break;
+    case 'stage-next':                               // Mode Panggung + ⏭ pada video tunggal (player internal, bisu)
+    case 'next-only':
+      inner.forceMute = true;
+      setState('open'); if (mode === 'stage-next') setTimeout(openStage, 2500);
+      setTimeout(() => { console.log('[dev] need-next, isYouTube=', isYouTube()); onNeedNext(); }, 9000);
+      setInterval(() => console.log('[dev] inner on=', inner.on, 'id=', inner.id, 'ps=', inner.info.playerState, 'ct=', inner.info.currentTime, 'hidden=', document.hidden), 2000);
+      break;
+    case 'stage-skip':                               // Mode Panggung, lalu ganti video (tiru skip lagu)
+      setState('open'); setTimeout(openStage, 2500);
+      setTimeout(() => {
+        clearInterval(stageTimer);
+        let t = 0;
+        const sync = (vid) => api.stageSync({ vid, t: t++, playing: true, title: 'uji skip', artist: vid || '-' });
+        sync(null);
+        setTimeout(() => { sync('Jom0uWnQEJk'); stageTimer = setInterval(() => sync('Jom0uWnQEJk'), 1000); }, 1200);
+      }, 9000);
+      break;
     case 'apo':                                      // lembar Pengaturan, gulir ke Equalizer, target APO
       setState('tasks');
       setTimeout(() => { openSettings(true); $('eqTarget').querySelector('[data-t="apo"]').click(); }, 300);

@@ -14,14 +14,28 @@ function stageData(full) {
     playing = media.status === 'Playing';
     t = (media.position || 0) + (playing ? (performance.now() - posAt) / 1000 : 0);
   }
-  const d = { vid: curVid() || null, t, playing, title: $('title').textContent, artist: $('artist').textContent };
+  // Player internal: video panggung baru dimuat SETELAH player bersuara benar-benar berputar;
+  // player YouTube baru tidak mau mulai bila sudah ada player YouTube lain yang aktif.
+  const innerReady = !inner.on || (inner.info.playerState === PS.PLAYING && (inner.info.currentTime || 0) > 1);
+  const d = { vid: innerReady ? curVid() || null : null, t, playing, title: $('title').textContent, artist: $('artist').textContent };
   // cover hanya dikirim bila berubah (data URL bisa ratusan KB)
   if (full || art.key !== stageArtKey) { stageArtKey = art.key; d.art = art.hd || art.smtc || null; }
   return d;
 }
 
+let tapAt = 0;
+function startTap() {
+  Viz.setTap((lv) => {
+    const now = performance.now();
+    if (now - tapAt < 32) return;
+    tapAt = now;
+    api.stageLevels(Array.from(lv, (v) => Math.round(v * 1000) / 1000));
+  });
+}
+
 function openStage() {
   clearInterval(stageTimer);
+  startTap();
   api.stageOpen({
     ...stageData(true),
     style: Viz.style, fps: settings.vizFps,
@@ -30,6 +44,6 @@ function openStage() {
   stageTimer = setInterval(() => api.stageSync(stageData(false)), 1000);
 }
 
-api.onStageClosed(() => clearInterval(stageTimer));
+api.onStageClosed(() => { clearInterval(stageTimer); Viz.setTap(null); });
 api.onStageCmd((cmd) => (inner.on ? innerCmd(cmd) : api.mediaCmd(cmd)));
 $('stageBtn').addEventListener('click', openStage);

@@ -13,6 +13,10 @@ const Viz = (() => {
   const targets = [];                    // { canvas, kind: line|circ|preview, inner?, style?, visible() }
   let analyser = null, fbuf = null, peak = 0.3;
   let playing = false, hidden = false, style = 'bars';
+  // Mode Panggung: widget "menyadap" level tiap frame (tap) dan panggung memakai level itu (feed).
+  // Panggung tidak boleh membuka penangkap audio sendiri: penangkap kedua membuat player
+  // YouTube di pil tidak mau mulai.
+  let tap = null, feed = null, feedAt = 0;
   let running = false, last = 0, frameMs = 1000 / 30;
   let accent = '#f2cf7f', accentAt = 0;
   const t0 = performance.now();
@@ -67,6 +71,7 @@ const Viz = (() => {
   const noise = (x) => Math.sin(x) * 0.5 + Math.sin(x * 2.3 + 1.7) * 0.3 + Math.sin(x * 5.1 + 0.4) * 0.2;
 
   function targetLevels(t, simulate) {
+    if (feed && playing && !simulate && performance.now() - feedAt < 500) return (i) => feed[i] || 0;
     if (analyser && playing && !simulate) {
       analyser.getByteFrequencyData(fbuf);
       const raw = new Float32Array(N); let mx = 0;
@@ -197,7 +202,7 @@ const Viz = (() => {
   /* ---------------- loop ---------------- */
   function loop(now) {
     if (!running) return;
-    if (hidden) { running = false; return; }                     // widget disembunyikan penuh
+    if (hidden && !tap) { running = false; return; }             // widget disembunyikan penuh
     requestAnimationFrame(loop);
     if (now - last < frameMs - 2) return;
     last = now;
@@ -207,11 +212,12 @@ const Viz = (() => {
     const visible = targets.filter((x) => x.visible());
     const preview = visible.some((x) => x.kind === 'preview');
     sample(t, preview && !playing);                               // pratinjau tetap bergerak walau tak ada musik
+    if (tap) tap(lv);
     visible.forEach((tg) => drawTarget(tg, t));
     // berhenti sendiri bila tidak ada yang perlu digerakkan
-    if (!playing && !preview && (energy() < 0.004 || !visible.length)) running = false;
+    if (!tap && !playing && !preview && (energy() < 0.004 || !visible.length)) running = false;
   }
-  function wake() { if (!running && !hidden) { running = true; last = 0; requestAnimationFrame(loop); } }
+  function wake() { if (!running && (!hidden || tap)) { running = true; last = 0; requestAnimationFrame(loop); } }
 
   return {
     CIRCULAR,
@@ -222,6 +228,8 @@ const Viz = (() => {
     setHidden(h) { hidden = h; if (!h) wake(); },
     setStyle(s) { style = DRAW[s] ? s : 'bars'; document.documentElement.dataset.viz = style; wake(); },
     setFps(f) { frameMs = 1000 / (f === 60 ? 60 : 30); },
+    setTap(fn) { tap = fn; wake(); },
+    setFeed(levels) { feed = levels; feedAt = performance.now(); },
     get style() { return style; },
   };
 })();
