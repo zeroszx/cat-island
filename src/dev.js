@@ -3,7 +3,7 @@
    Hanya aktif bila widget dijalankan dengan variabel lingkungan
    CAT_DEMO=<mode>, mis. dari PowerShell:
      $env:CAT_DEMO='tasks'; .\node_modules\electron\dist\electron.exe .
-   Mode: open | tasks | settings | recs | shuffle | play | playsound | viz:<gaya>
+   Mode: open | tasks | settings | eq | recs | shuffle | play | playsound | viz:<gaya>
    ========================================================= */
 const waitFor = (cond, ms) => new Promise((ok) => {
   const t0 = Date.now();
@@ -14,6 +14,14 @@ api.onDemo(async (mode) => {
   devMode = true;                                    // panel tidak ditutup saat jendela kehilangan fokus
   if (mode.startsWith('viz:')) { Viz.setStyle(mode.slice(4)); setState('open'); return; }
   switch (mode) {
+    case 'eq':                                       // uji equalizer: putar video, pilih preset Bass Boost
+      setState('open');
+      innerPlay({ id: 'Jom0uWnQEJk', title: 'Drunk Text', channel: 'Henry Moodie' });
+      await new Promise((r) => setTimeout(r, 9000));
+      setState('tasks'); setTimeout(() => openSettings(true), 300);
+      eqSet('bass', [...EQ_PRESETS.bass.g]);
+      console.log('[dev] eq bass ->', await api.eqApply(EQ_PRESETS.bass.g));
+      break;
     case 'settings':
       setState('tasks'); setTimeout(() => { openSettings(true); $('keyGuide').open = true; }, 300); break;
     case 'recs':

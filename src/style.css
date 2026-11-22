@@ -342,6 +342,15 @@ svg { display: block; }
 .guide p { margin: 8px 12px 10px; line-height: 1.45; }
 .link-btn { display: inline-block; margin-top: 3px; padding: 2px 8px; border-radius: 7px; font-size: 10px; color: var(--cream); background: rgba(242,207,127,.12); border: 1px solid rgba(242,207,127,.25); transition: .2s; }
 .link-btn:hover { background: rgba(242,207,127,.22); }
+.eq-presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.eq-presets button { padding: 4px 10px; border-radius: 999px; font-size: 10.5px; color: var(--muted); border: 1px solid var(--line); background: rgba(255,255,255,.04); transition: .2s; }
+.eq-presets button:hover:not(:disabled) { color: var(--cream); background: rgba(255,255,255,.08); }
+.eq-presets button.on { color: #141414; background: var(--gold); border-color: var(--gold); }
+.eq-presets button:disabled:not(.on) { display: none; }
+.eq { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; padding: 8px 6px 6px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.03); }
+.eq-band { display: grid; justify-items: center; gap: 4px; font-size: 9.5px; color: var(--muted); }
+.eq-db { font-variant-numeric: tabular-nums; color: var(--cream); min-height: 12px; }
+.eq-band input { writing-mode: vertical-lr; direction: rtl; width: 18px; height: 86px; padding: 0; border: none; background: none; accent-color: var(--gold); cursor: ns-resize; }
 .dur { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .dur label { display: grid; gap: 4px; color: var(--muted); font-size: 10px; }
 .toggle { display: flex; gap: 10px; align-items: flex-start; font-size: 11.5px; cursor: pointer; }

@@ -10,6 +10,7 @@ const path = require('path');
 const fs = require('fs');
 const { spawn } = require('child_process');
 const youtube = require('./main/youtube');
+const eq = require('./main/eq');
 const { getAutostart, setAutostart, migrateAutostart, trayIcon } = require('./main/system');
 
 const DEBUG = !!(process.env.CAT_DEBUG || process.env.CAT_DEMO);
@@ -146,6 +147,7 @@ ipcMain.on('set-ignore', (_e, ignore) => win.setIgnoreMouseEvents(ignore, { forw
 ipcMain.on('focus', () => win.focus());
 ipcMain.on('set-mode', (_e, m) => { if (SIZES[m] && m !== mode) { mode = m; applyMode(); } });
 youtube.register(ipcMain, () => settings.ytKey, path.join(dataDir, 'yt-cache.json'));
+eq.register(ipcMain, () => win);
 
 // seret cover untuk memindahkan widget
 let dragFrom = null;

@@ -36,4 +36,5 @@ contextBridge.exposeInMainWorld('island', {
 
   notify: (title, body) => ipcRenderer.send('notify', title, body),
   openExternal: (url) => ipcRenderer.send('open-external', url),
+  eqApply: (gains) => ipcRenderer.invoke('eq-apply', gains),
 });

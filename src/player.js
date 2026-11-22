@@ -101,6 +101,7 @@ window.addEventListener('message', (e) => {
     if (d.info && (d.info.muted === true || (!inner.audioOk && 'volume' in d.info))) {
       if (inner.forceMute) inner.cmd('mute');
       else { inner.cmd('unMute'); inner.cmd('setVolume', [100]); }
+      if (!inner.audioOk) eqApply();                         // pasang equalizer di player baru
       inner.audioOk = true;
     }
     Object.assign(inner.info, d.info || {});

@@ -5,7 +5,7 @@
 function openSettings(on) {
   $('sheet').classList.toggle('on', on);
   if (!on) return;
-  markVizPick(); Viz.wake();
+  markVizPick(); Viz.wake(); eqRender();
   $('ytKey').value = settings.ytKey || '';
   $('autoFsOn').checked = settings.autoFs !== false;
   $('viz60').checked = settings.vizFps === 60;
