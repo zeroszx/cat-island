@@ -174,10 +174,13 @@ const Viz = (() => {
       g.stroke(); g.shadowBlur = 0;
     },
     radial({ g, w, h }, inner, t) {                        // batang di sekeliling cover
-      const cx = w / 2, cy = h / 2, r0 = inner + 1.5, maxL = Math.min(w, h) / 2 - r0 - 0.5;
+      const cx = w / 2, cy = h / 2, r0 = inner + 1.5;
       const n = Math.max(72, Math.round((2 * Math.PI * r0) / 8));        // lingkaran besar (Mode Panggung) tetap rapat
       g.strokeStyle = circInk(g, cx, cy, t); g.lineWidth = Math.max(0.8, ((2 * Math.PI * r0) / n) * 0.45); g.lineCap = 'round';
-      if (rgb && inner > 60) { g.shadowColor = 'rgba(255,255,255,.35)'; g.shadowBlur = inner / 30; }   // kilau halus di panggung
+      const glow = rgb && inner > 60 ? Math.min(5, inner / 30) : 0;
+      if (glow) { g.shadowColor = 'rgba(255,255,255,.35)'; g.shadowBlur = glow; }   // kilau halus di panggung
+      // sisakan ruang untuk ujung bulat + kilau: kalau terpotong tepi kanvas, muncul garis lurus/putus-putus
+      const maxL = Math.max(2, Math.min(w, h) / 2 - r0 - g.lineWidth / 2 - glow * 1.5 - 1);
       g.beginPath();
       for (let i = 0; i < n; i++) {
         const a = (i / n) * Math.PI * 2 - Math.PI / 2, p = i / n;

@@ -3,7 +3,7 @@
    Panggung (stage.html) menerima: video YouTube yang sedang diputar, posisi,
    status putar, cover, judul. Dikirim tiap detik selama panggung terbuka.
    ========================================================= */
-let stageTimer = 0, stageArtKey = null;
+let stageTimer = 0, stageArtSent = null;
 
 function stageData(full) {
   let t = 0, playing = false;
@@ -18,8 +18,10 @@ function stageData(full) {
   // player YouTube baru tidak mau mulai bila sudah ada player YouTube lain yang aktif.
   const innerReady = !inner.on || (inner.info.playerState === PS.PLAYING && (inner.info.currentTime || 0) > 1);
   const d = { rgb: !!settings.vizRgb, vid: innerReady ? curVid() || null : null, t, playing, title: $('title').textContent, artist: $('artist').textContent };
-  // cover hanya dikirim bila berubah (data URL bisa ratusan KB)
-  if (full || art.key !== stageArtKey) { stageArtKey = art.key; d.art = art.hd || art.smtc || null; }
+  // cover dikirim setiap gambarnya berubah (cover yang datang belakangan / versi HD), bukan tiap detik:
+  // data URL bisa ratusan KB
+  const img = art.hd || art.smtc || null;
+  if (full || img !== stageArtSent) { stageArtSent = img; d.art = img; }
   return d;
 }
 
