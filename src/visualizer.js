@@ -18,19 +18,40 @@ const Viz = (() => {
   const t0 = performance.now();
 
   /* ---------------- data audio ---------------- */
+  // Aliran loopback bisa mati diam-diam (perangkat audio berganti, Windows memutusnya, dll.):
+  // analyser lalu hanya berisi nol dan visualizer diam selamanya. Maka sambungkan ulang
+  // bila track berakhir atau senyap total terlalu lama saat musik diputar.
+  let audioTrack = null, audioCtx = null, initing = false, retryAt = 0;
+  let zeroSince = 0, silentResets = 0, everAudio = false;
+  function resetAudio(why) {
+    console.log('[viz] sambung ulang audio sistem:', why);
+    try { audioTrack?.stop(); } catch {}
+    try { audioCtx?.close(); } catch {}
+    analyser = null; audioTrack = null; audioCtx = null; zeroSince = 0;
+    retryAt = performance.now() + 1000;
+  }
+  function ensureAudio(now) {
+    if (analyser || initing || now < retryAt) return;
+    initing = true; retryAt = now + 5000;
+    initAudio().finally(() => { initing = false; });
+  }
+
   async function initAudio() {
     if (analyser) return true;
     try {
       const stream = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: { width: 1, height: 1, frameRate: 1 } });
       stream.getVideoTracks().forEach((t) => t.stop());          // hanya butuh audio
       if (!stream.getAudioTracks().length) return false;
-      const ac = new AudioContext();
+      audioTrack = stream.getAudioTracks()[0];
+      audioTrack.addEventListener('ended', () => resetAudio('aliran berakhir'));
+      const ac = audioCtx = new AudioContext();
       analyser = ac.createAnalyser();
       analyser.fftSize = 512;                                      // 256 bin
       analyser.smoothingTimeConstant = 0.6;
       analyser.minDecibels = -85; analyser.maxDecibels = -20;
       ac.createMediaStreamSource(stream).connect(analyser);       // tidak diteruskan ke speaker
       fbuf = new Uint8Array(analyser.frequencyBinCount);
+      everAudio = true;
       return true;
     } catch (e) {
       console.log('[viz] audio sistem tidak tersedia, pakai simulasi:', e.message);
@@ -55,6 +76,12 @@ const Viz = (() => {
         raw[i] = (m / 255) * (0.7 + (i / N) * 1.1);                 // angkat treble yang alami lemah
         if (raw[i] > mx) mx = raw[i];
       }
+      if (mx === 0) {
+        // senyap total: tunggu (jeda antarlagu wajar), lalu sambung ulang dengan jeda makin lama
+        if (!zeroSince) zeroSince = t;
+        else if (t - zeroSince > Math.min(60, 4 * 2 ** silentResets)) { silentResets++; resetAudio('senyap total'); }
+        if (zeroSince && t - zeroSince > 1.5) return targetLevels(t, true);   // sementara: gerak simulasi
+      } else { zeroSince = 0; silentResets = 0; }
       // auto-gain: normalisasi terhadap puncak beberapa detik terakhir
       peak = Math.max(peak * 0.996, mx, 0.08);
       return (i) => Math.pow(raw[i] / peak, 1.25) * 0.95;
@@ -175,6 +202,7 @@ const Viz = (() => {
     last = now;
     if (now - accentAt > 1000) { accentAt = now; accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || accent; }
     const t = (now - t0) / 1000;
+    if (playing && everAudio && !analyser) ensureAudio(now);          // pulihkan audio yang terputus
     const visible = targets.filter((x) => x.visible());
     const preview = visible.some((x) => x.kind === 'preview');
     sample(t, preview && !playing);                               // pratinjau tetap bergerak walau tak ada musik
