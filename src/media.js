@@ -61,5 +61,5 @@ setInterval(() => {
   if (d) $('fill').style.width = Math.min(100, (t / d) * 100) + '%';
 }, 1000);
 
-document.querySelectorAll('.controls button').forEach((b) =>
+document.querySelectorAll('.controls button[data-cmd]').forEach((b) =>
   b.addEventListener('click', () => (inner.on ? innerCmd(b.dataset.cmd) : api.mediaCmd(b.dataset.cmd))));

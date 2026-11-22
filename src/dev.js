@@ -3,7 +3,7 @@
    Hanya aktif bila widget dijalankan dengan variabel lingkungan
    CAT_DEMO=<mode>, mis. dari PowerShell:
      $env:CAT_DEMO='tasks'; .\node_modules\electron\dist\electron.exe .
-   Mode: open | tasks | settings | eq | recs | shuffle | play | playsound | viz:<gaya>
+   Mode: open | tasks | settings | eq | apo | stage | recs | shuffle | play | playsound | viz:<gaya>
    ========================================================= */
 const waitFor = (cond, ms) => new Promise((ok) => {
   const t0 = Date.now();
@@ -22,6 +22,8 @@ api.onDemo(async (mode) => {
       eqSet('bass', [...EQ_PRESETS.bass.g]);
       console.log('[dev] eq bass ->', await api.eqApply(EQ_PRESETS.bass.g));
       break;
+    case 'stage':                                    // buka Mode Panggung
+      setState('open'); setTimeout(openStage, 2500); break;
     case 'apo':                                      // lembar Pengaturan, gulir ke Equalizer, target APO
       setState('tasks');
       setTimeout(() => { openSettings(true); $('eqTarget').querySelector('[data-t="apo"]').click(); }, 300);

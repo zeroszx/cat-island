@@ -12,6 +12,7 @@ const { spawn } = require('child_process');
 const youtube = require('./main/youtube');
 const eq = require('./main/eq');
 const apo = require('./main/apo');
+const stage = require('./main/stage');
 const { getAutostart, setAutostart, migrateAutostart, trayIcon } = require('./main/system');
 
 const DEBUG = !!(process.env.CAT_DEBUG || process.env.CAT_DEMO);
@@ -150,6 +151,7 @@ ipcMain.on('set-mode', (_e, m) => { if (SIZES[m] && m !== mode) { mode = m; appl
 youtube.register(ipcMain, () => settings.ytKey, path.join(dataDir, 'yt-cache.json'));
 eq.register(ipcMain, () => win);
 apo.register(ipcMain);
+stage.register(ipcMain, () => win, __dirname);
 
 // seret cover untuk memindahkan widget
 let dragFrom = null;

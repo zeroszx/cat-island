@@ -40,4 +40,13 @@ contextBridge.exposeInMainWorld('island', {
   apoStatus: () => ipcRenderer.invoke('apo-status'),
   apoSetup: () => ipcRenderer.invoke('apo-setup'),
   apoApply: (gains) => ipcRenderer.invoke('apo-apply', gains),
+
+  // Mode Panggung
+  onStage: on('stage'),
+  onStageCmd: on('stage-cmd'),
+  onStageClosed: on('stage-closed'),
+  stageOpen: (d) => ipcRenderer.send('stage-open', d),
+  stageSync: (d) => ipcRenderer.send('stage-sync', d),
+  stageCmd: (c) => ipcRenderer.send('stage-cmd', c),
+  stageClose: () => ipcRenderer.send('stage-close'),
 });

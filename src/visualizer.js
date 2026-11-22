@@ -155,7 +155,8 @@ const Viz = (() => {
       g.stroke(); g.shadowBlur = 0;
     },
     radial({ g, w, h }, inner) {                           // batang di sekeliling cover
-      const cx = w / 2, cy = h / 2, r0 = inner + 1.5, maxL = Math.min(w, h) / 2 - r0 - 0.5, n = 72;
+      const cx = w / 2, cy = h / 2, r0 = inner + 1.5, maxL = Math.min(w, h) / 2 - r0 - 0.5;
+      const n = Math.max(72, Math.round((2 * Math.PI * r0) / 8));        // lingkaran besar (Mode Panggung) tetap rapat
       g.strokeStyle = CREAM; g.lineWidth = Math.max(0.8, ((2 * Math.PI * r0) / n) * 0.45); g.lineCap = 'round';
       g.beginPath();
       for (let i = 0; i < n; i++) {
@@ -169,7 +170,7 @@ const Viz = (() => {
     ring({ g, w, h }, inner, t) {                          // helai terpilin yang berputar
       const cx = w / 2, cy = h / 2, room = Math.min(w, h) / 2 - inner, R = inner + room * 0.5;
       const amp = room * (0.28 + energy() * 0.75), K = 7, TWISTS = 3, STEPS = 120;
-      g.lineWidth = 0.9; g.strokeStyle = 'rgba(244,236,220,.9)'; g.shadowColor = accent; g.shadowBlur = 2.5;
+      g.lineWidth = Math.max(0.9, inner / 90); g.strokeStyle = 'rgba(244,236,220,.9)'; g.shadowColor = accent; g.shadowBlur = Math.max(2.5, inner / 40);
       for (let k = 0; k < K; k++) {
         const ph = (k / K) * Math.PI * 2;
         g.beginPath();

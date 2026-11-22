@@ -19,7 +19,7 @@
     "productName": "Cat Island",
     "copyright": "Cat Island",
     "directories": { "output": "dist", "buildResources": "build" },
-    "files": ["main.js", "preload.js", "index.html", "main/**", "src/**", "bridge/**", "package.json"],
+    "files": ["main.js", "preload.js", "index.html", "stage.html", "main/**", "src/**", "bridge/**", "package.json"],
     "asarUnpack": ["bridge/**"],
     "win": {
       "target": [{ "target": "nsis", "arch": ["x64"] }],

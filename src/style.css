@@ -442,3 +442,5 @@ html[data-viz=radial] .mini-wrap, html[data-viz=ring] .mini-wrap { margin: 0 4px
 /* hentikan animasi CSS pada bagian yang tidak terlihat */
 .s-hidden .pill *, .s-hidden .panel *, .s-open .panel * { animation-play-state: paused !important; }
 .s-open .notch *, .s-tasks .notch * { animation-play-state: paused !important; }
+.controls .stage-btn { margin-left: 3px; }
+.controls .stage-btn svg { width: 14px; height: 14px; }
