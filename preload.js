@@ -33,6 +33,8 @@ contextBridge.exposeInMainWorld('island', {
   ytLookup: (q) => ipcRenderer.invoke('yt-lookup', q),
   ytRecs: (id) => ipcRenderer.invoke('yt-recs', id),
   ytThumb: (id) => ipcRenderer.invoke('yt-thumb', id),
+  ytAspect: (id) => ipcRenderer.invoke('yt-aspect', id),
+  ytFrames: (id) => ipcRenderer.invoke('yt-frames', id),
 
   notify: (title, body) => ipcRenderer.send('notify', title, body),
   openExternal: (url) => ipcRenderer.send('open-external', url),

@@ -12,6 +12,11 @@ const waitFor = (cond, ms) => new Promise((ok) => {
 
 api.onDemo(async (mode) => {
   devMode = true;                                    // panel tidak ditutup saat jendela kehilangan fokus
+  if (mode.startsWith('stage-vid:')) {               // Mode Panggung dengan video tertentu (uji ukuran/black bar)
+    const vid = mode.slice(10); setState('open'); setTimeout(openStage, 1500);
+    setTimeout(() => { clearInterval(stageTimer); let t = 30; api.stageSync({ vid, t, playing: true, title: 'uji ' + vid, artist: '-' }); stageTimer = setInterval(() => api.stageSync({ vid, t: t++, playing: true }), 1000); }, 6000);
+    return;
+  }
   if (mode.startsWith('viz:')) { Viz.setStyle(mode.slice(4)); setState('open'); return; }
   switch (mode) {
     case 'eq':                                       // uji equalizer: putar video, pilih preset Bass Boost

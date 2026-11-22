@@ -93,6 +93,40 @@ function register(ipcMain, getKey, cacheFile) {
   });
 
   ipcMain.handle('yt-thumb', (_e, id) => hdThumb(id));
+
+  // 3 cuplikan frame asli (dibuat otomatis YouTube di ±25/50/75% video, bukan thumbnail kustom)
+  // -> untuk mendeteksi black bar yang tertanam di file video. Gratis (tanpa kuota).
+  const frameCache = new Map();
+  ipcMain.handle('yt-frames', async (_e, id) => {
+    if (!VIDEO_ID.test(id || '')) return [];
+    if (frameCache.has(id)) return frameCache.get(id);
+    const imgs = (await Promise.all([1, 2, 3].map((n) =>
+      fetchDataUrl(`https://i.ytimg.com/vi/${id}/hq${n}.jpg`).catch(() => null)))).filter(Boolean);
+    frameCache.set(id, imgs);
+    if (frameCache.size > 30) frameCache.delete(frameCache.keys().next().value);
+    return imgs;
+  });
+
+  // rasio asli video (lebar/tinggi). Dipakai Mode Panggung agar iframe punya rasio yang sama
+  // dengan videonya -> player YouTube tidak menambah black bar atas/bawah atau kiri/kanan.
+  // videos.list part=player + maxWidth mengembalikan embedWidth/embedHeight sesuai rasio (1 unit kuota).
+  const aspectCache = persistentMap(cacheFile.replace(/yt-cache\.json$/, 'yt-aspect.json'), 1000);
+  ipcMain.handle('yt-aspect', async (_e, id) => {
+    if (!VIDEO_ID.test(id || '')) return null;
+    const cached = aspectCache.get(id);
+    if (cached) return cached;
+    const key = getKey();
+    if (!key) return null;
+    try {
+      const j = await (await fetch(`${API}/videos?part=player&maxWidth=1280&id=${id}&key=${encodeURIComponent(key)}`)).json();
+      const p = j.items?.[0]?.player;
+      const ar = Number(p?.embedWidth) / Number(p?.embedHeight);
+      if (!Number.isFinite(ar) || ar <= 0) return null;
+      const r = Math.round(ar * 1000) / 1000;
+      aspectCache.set(id, r);
+      return r;
+    } catch { return null; }
+  });
 }
 
 module.exports = { register };
