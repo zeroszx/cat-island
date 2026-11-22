@@ -22,6 +22,11 @@ api.onDemo(async (mode) => {
       eqSet('bass', [...EQ_PRESETS.bass.g]);
       console.log('[dev] eq bass ->', await api.eqApply(EQ_PRESETS.bass.g));
       break;
+    case 'apo':                                      // lembar Pengaturan, gulir ke Equalizer, target APO
+      setState('tasks');
+      setTimeout(() => { openSettings(true); $('eqTarget').querySelector('[data-t="apo"]').click(); }, 300);
+      setTimeout(() => $('eqTarget').scrollIntoView({ block: 'start' }), 1500);
+      break;
     case 'settings':
       setState('tasks'); setTimeout(() => { openSettings(true); $('keyGuide').open = true; }, 300); break;
     case 'recs':

@@ -157,7 +157,21 @@
         <div class="viz-pick" id="vizPick"></div>
       </div>
       <div class="field">
-        <span>Equalizer suara <em>Atur bass, vokal, dan treble lagu yang diputar di Cat Island. Langsung terdengar &amp; tersimpan. Klik ganda slider = 0. (Spotify punya equalizer sendiri: Settings → Playback.)</em></span>
+        <span>Equalizer suara <em>Atur bass, vokal, dan treble. Langsung terdengar &amp; tersimpan. Klik ganda slider = 0.</em></span>
+        <div class="seg" id="eqTarget">
+          <button type="button" data-t="inner">Pemutar Cat Island</button>
+          <button type="button" data-t="apo">Semua suara Windows</button>
+        </div>
+        <div class="apo" id="apoBox" hidden>
+          <p id="apoMsg">Memeriksa Equalizer APO…</p>
+          <ol id="apoSteps">
+            <li>Unduh &amp; instal <b>Equalizer APO</b> (gratis).
+              <button class="link-btn" data-open="https://sourceforge.net/projects/equalizerapo/">Unduh Equalizer APO ↗</button></li>
+            <li>Di akhir instalasi muncul <b>Configurator</b>: centang speaker/headphone yang kamu pakai → <b>OK</b> → restart Windows.</li>
+            <li>Kembali ke sini, klik <b>Hubungkan</b>. Windows meminta izin admin satu kali.</li>
+          </ol>
+          <button type="button" class="link-btn" id="apoSetup">Hubungkan</button>
+        </div>
         <div class="eq-presets" id="eqPresets"></div>
         <div class="eq" id="eqBands"></div>
       </div>

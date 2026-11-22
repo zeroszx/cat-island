@@ -6,6 +6,7 @@ function openSettings(on) {
   $('sheet').classList.toggle('on', on);
   if (!on) return;
   markVizPick(); Viz.wake(); eqRender();
+  if (eqTarget() === 'apo') apoRefresh();
   $('ytKey').value = settings.ytKey || '';
   $('autoFsOn').checked = settings.autoFs !== false;
   $('viz60').checked = settings.vizFps === 60;
@@ -47,8 +48,8 @@ async function saveSettingsForm() {
   if (media.active) ytLookup(media);
 }
 
-// Panduan API key: tombol membuka halaman Google Cloud di browser bawaan
-$('keyGuide').addEventListener('click', (e) => {
+// Tombol panduan (API key, Equalizer APO) membuka halaman di browser bawaan
+$('sheet').addEventListener('click', (e) => {
   const url = e.target.closest('[data-open]')?.dataset.open;
   if (url) { e.preventDefault(); api.openExternal(url); }
 });

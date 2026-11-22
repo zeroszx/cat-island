@@ -21,26 +21,53 @@ const eqState = () => {
   return { preset: e.preset || 'flat', gains: g };
 };
 
-// Terapkan ke player internal. Elemen <video> baru ada beberapa saat setelah
-// iframe dimuat, jadi coba ulang sebentar bila belum ada.
+const FLAT = EQ_PRESETS.flat.g;
+const eqTarget = () => (settings.eqTarget === 'apo' ? 'apo' : 'inner');
+
+// Player internal: dapat gain hanya bila target = Cat Island (agar tidak dobel dengan APO).
+// Elemen <video> baru ada beberapa saat setelah iframe dimuat -> coba ulang sebentar.
 let eqTry = 0;
 async function eqApply(retry = false) {
   if (!inner.on) return;
   if (!retry) eqTry = 0;
-  const res = await api.eqApply(eqState().gains);
+  const res = await api.eqApply(eqTarget() === 'inner' ? eqState().gains : FLAT);
   if (res === 'novideo' && ++eqTry < 10) setTimeout(() => eqApply(true), 700);
 }
 
+// Equalizer APO: file konfigurasi ditulis (ditunda sedikit saat slider digeser)
+let apoT = 0, apoReady = false;
+function apoApply() {
+  clearTimeout(apoT);
+  apoT = setTimeout(() => { if (apoReady) api.apoApply(eqTarget() === 'apo' ? eqState().gains : FLAT); }, 120);
+}
+
 let eqSaveT = 0;
-function eqSet(preset, gains) {
-  settings.eq = { preset, gains };
-  eqRender();
-  eqApply();
+function eqSave(patch) {
+  Object.assign(settings, patch);
   clearTimeout(eqSaveT);
-  eqSaveT = setTimeout(() => api.setSettings({ eq: settings.eq }), 300);  // simpan tanpa menunggu "Simpan"
+  eqSaveT = setTimeout(() => api.setSettings({ eq: settings.eq, eqTarget: eqTarget() }), 300);  // tanpa menunggu "Simpan"
+}
+
+function eqSet(preset, gains) {
+  eqSave({ eq: { preset, gains } });
+  eqRender(); eqApply(); apoApply();
+}
+
+async function apoRefresh() {
+  const st = await api.apoStatus();
+  apoReady = !!st.ready;
+  const msg = $('apoMsg');
+  $('apoSteps').hidden = st.installed;
+  $('apoSetup').hidden = !st.installed || st.ready;
+  if (st.ready) { msg.textContent = 'Terhubung ✓ Equalizer berlaku untuk semua suara: Brave, Spotify, game, dll.'; msg.className = 'ok'; }
+  else if (st.installed) { msg.textContent = 'Equalizer APO terpasang, tinggal dihubungkan ke Cat Island.'; msg.className = ''; }
+  else { msg.textContent = 'Equalizer APO belum terpasang. Ikuti langkah berikut:'; msg.className = ''; }
+  apoApply();
 }
 
 function eqRender() {
+  $('eqTarget').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.t === eqTarget()));
+  $('apoBox').hidden = eqTarget() !== 'apo';
   const { preset, gains } = eqState();
   $('eqPresets').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.p === preset));
   $('eqBands').querySelectorAll('input').forEach((s, i) => {
@@ -66,6 +93,19 @@ function eqRender() {
     const gains = [...eqState().gains];
     gains[+e.target.dataset.i] = Number(e.target.value);
     eqSet('custom', gains);
+  });
+  $('eqTarget').addEventListener('click', (e) => {
+    const t = e.target.closest('button')?.dataset.t;
+    if (!t || t === eqTarget()) return;
+    eqSave({ eqTarget: t });
+    eqRender(); eqApply();                     // pindahkan efek: yang lama jadi datar
+    if (t === 'apo') apoRefresh(); else apoApply();
+  });
+  $('apoSetup').addEventListener('click', async () => {
+    $('apoMsg').textContent = 'Menunggu izin admin (dialog Windows)…'; $('apoMsg').className = '';
+    await api.apoSetup();
+    await apoRefresh();
+    if (!apoReady) { $('apoMsg').textContent = 'Belum terhubung. Izin admin ditolak? Coba klik Hubungkan lagi.'; $('apoMsg').className = 'err'; }
   });
   $('eqBands').addEventListener('dblclick', (e) => {        // klik ganda = kembalikan band ke 0
     if (e.target.type !== 'range') return;

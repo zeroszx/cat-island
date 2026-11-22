@@ -37,4 +37,7 @@ contextBridge.exposeInMainWorld('island', {
   notify: (title, body) => ipcRenderer.send('notify', title, body),
   openExternal: (url) => ipcRenderer.send('open-external', url),
   eqApply: (gains) => ipcRenderer.invoke('eq-apply', gains),
+  apoStatus: () => ipcRenderer.invoke('apo-status'),
+  apoSetup: () => ipcRenderer.invoke('apo-setup'),
+  apoApply: (gains) => ipcRenderer.invoke('apo-apply', gains),
 });

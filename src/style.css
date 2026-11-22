@@ -342,6 +342,18 @@ svg { display: block; }
 .guide p { margin: 8px 12px 10px; line-height: 1.45; }
 .link-btn { display: inline-block; margin-top: 3px; padding: 2px 8px; border-radius: 7px; font-size: 10px; color: var(--cream); background: rgba(242,207,127,.12); border: 1px solid rgba(242,207,127,.25); transition: .2s; }
 .link-btn:hover { background: rgba(242,207,127,.22); }
+.seg { display: grid; grid-template-columns: 1fr 1fr; padding: 3px; gap: 3px; border-radius: 10px; background: rgba(255,255,255,.05); border: 1px solid var(--line); }
+.seg button { padding: 6px 8px; border-radius: 8px; font-size: 11px; color: var(--muted); transition: .2s; }
+.seg button:hover { color: var(--cream); }
+.seg button.on { background: rgba(242,207,127,.16); color: var(--cream); font-weight: 600; }
+.apo { font-size: 10.5px; color: var(--muted); border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.03); padding: 9px 12px; display: grid; gap: 7px; line-height: 1.45; }
+.apo[hidden], .apo [hidden] { display: none !important; }
+.apo p { margin: 0; }
+.apo p.ok { color: #6fd6a8; }
+.apo p.err { color: #ff8f8f; }
+.apo ol { margin: 0; padding-left: 16px; display: grid; gap: 5px; }
+.apo b { color: var(--cream); font-weight: 600; }
+.apo #apoSetup { justify-self: start; }
 .eq-presets { display: flex; flex-wrap: wrap; gap: 6px; }
 .eq-presets button { padding: 4px 10px; border-radius: 999px; font-size: 10.5px; color: var(--muted); border: 1px solid var(--line); background: rgba(255,255,255,.04); transition: .2s; }
 .eq-presets button:hover:not(:disabled) { color: var(--cream); background: rgba(255,255,255,.08); }

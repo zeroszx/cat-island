@@ -11,6 +11,7 @@ const fs = require('fs');
 const { spawn } = require('child_process');
 const youtube = require('./main/youtube');
 const eq = require('./main/eq');
+const apo = require('./main/apo');
 const { getAutostart, setAutostart, migrateAutostart, trayIcon } = require('./main/system');
 
 const DEBUG = !!(process.env.CAT_DEBUG || process.env.CAT_DEMO);
@@ -131,11 +132,11 @@ ipcMain.on('media-cmd', (_e, cmd) => {
   log('[media-cmd]', cmd);
   if (MEDIA_CMDS.includes(cmd)) media?.stdin.write(cmd + '\n');
 });
-// Hanya halaman Google Cloud (panduan API key) yang boleh dibuka di browser
+// Hanya halaman panduan (Google Cloud, unduhan Equalizer APO) yang boleh dibuka di browser
 ipcMain.on('open-external', (_e, url) => {
   try {
     const u = new URL(url);
-    if (u.protocol === 'https:' && u.hostname === 'console.cloud.google.com') shell.openExternal(u.href);
+    if (u.protocol === 'https:' && ['console.cloud.google.com', 'sourceforge.net'].includes(u.hostname)) shell.openExternal(u.href);
   } catch {}
 });
 ipcMain.handle('tasks-load', () => readJson(tasksFile, []));
@@ -148,6 +149,7 @@ ipcMain.on('focus', () => win.focus());
 ipcMain.on('set-mode', (_e, m) => { if (SIZES[m] && m !== mode) { mode = m; applyMode(); } });
 youtube.register(ipcMain, () => settings.ytKey, path.join(dataDir, 'yt-cache.json'));
 eq.register(ipcMain, () => win);
+apo.register(ipcMain);
 
 // seret cover untuk memindahkan widget
 let dragFrom = null;
