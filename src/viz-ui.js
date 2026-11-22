@@ -19,7 +19,14 @@ async function setupVizAudio() {
   document.addEventListener('pointerdown', () => Viz.initAudio(), { once: true, capture: true });
 }
 
+function setVizRgb(on) {
+  Viz.setRgb(on); settings.vizRgb = !!on; api.setSettings({ vizRgb: !!on });
+  $('vizRgb').checked = !!on;
+}
+$('vizRgb').addEventListener('change', (e) => setVizRgb(e.target.checked));
+
 function markVizPick() {
+  $('vizRgb').checked = !!settings.vizRgb;
   document.querySelectorAll('.viz-card').forEach((x) => x.classList.toggle('on', x.dataset.s === Viz.style));
 }
 

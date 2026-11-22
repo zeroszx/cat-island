@@ -6,6 +6,7 @@ api.getSettings().then((s) => {
   settings = s;
   Viz.setStyle(s.vizStyle || 'bars');
   Viz.setFps(s.vizFps);
+  Viz.setRgb(!!s.vizRgb);
   setupVizAudio();
   // durasi Pomodoro bisa berubah di Pengaturan -> sesuaikan timer yang belum berjalan
   if (!pomo.running && pomo.remaining === pomo.full && pomo.full !== pomoDur(pomo.mode)) pomoSetMode(pomo.mode);

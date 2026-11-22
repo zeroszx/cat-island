@@ -17,7 +17,7 @@ function stageData(full) {
   // Player internal: video panggung baru dimuat SETELAH player bersuara benar-benar berputar;
   // player YouTube baru tidak mau mulai bila sudah ada player YouTube lain yang aktif.
   const innerReady = !inner.on || (inner.info.playerState === PS.PLAYING && (inner.info.currentTime || 0) > 1);
-  const d = { vid: innerReady ? curVid() || null : null, t, playing, title: $('title').textContent, artist: $('artist').textContent };
+  const d = { rgb: !!settings.vizRgb, vid: innerReady ? curVid() || null : null, t, playing, title: $('title').textContent, artist: $('artist').textContent };
   // cover hanya dikirim bila berubah (data URL bisa ratusan KB)
   if (full || art.key !== stageArtKey) { stageArtKey = art.key; d.art = art.hd || art.smtc || null; }
   return d;
@@ -45,5 +45,8 @@ function openStage() {
 }
 
 api.onStageClosed(() => { clearInterval(stageTimer); Viz.setTap(null); });
-api.onStageCmd((cmd) => (inner.on ? innerCmd(cmd) : api.mediaCmd(cmd)));
+api.onStageCmd((cmd) => {
+  if (cmd === 'rgb') { setVizRgb(!settings.vizRgb); api.stageSync(stageData(false)); return; }
+  if (inner.on) innerCmd(cmd); else api.mediaCmd(cmd);
+});
 $('stageBtn').addEventListener('click', openStage);

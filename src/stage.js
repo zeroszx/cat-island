@@ -66,6 +66,7 @@ function apply(s) {
   if ('title' in s) $('title').textContent = s.title || '';
   if ('artist' in s) $('artist').textContent = (s.artist || '').replace(/\s*·\s*Cat Island$/, '');
   Viz.setPlaying(!!s.playing);
+  if ('rgb' in s) Viz.setRgb(s.rgb);
   document.body.classList.toggle('paused', !s.playing);
 
   if ((s.vid || null) !== vid) { vid = s.vid || null; embed(vid, s.t); return; }
@@ -105,6 +106,7 @@ addEventListener('keydown', (e) => {
   else if (e.key === ' ') { e.preventDefault(); api.stageCmd('toggle'); }
   else if (e.key === 'ArrowRight') api.stageCmd('next');
   else if (e.key === 'ArrowLeft') api.stageCmd('prev');
+  else if (e.key === 'r' || e.key === 'R') api.stageCmd('rgb');
 });
 document.addEventListener('click', (e) => {
   if (e.target.id === 'shield') api.stageCmd('toggle');

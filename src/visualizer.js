@@ -126,30 +126,44 @@ const Viz = (() => {
   function rr(g, x, y, w, h, r) { r = Math.min(r, w / 2, h / 2); g.beginPath(); g.roundRect(x, y, w, h, r); }
   const CREAM = '#f4ecdc';
 
+  // Mode RGB: pelangi yang berputar pelan. Satu gradien per frame (bukan per batang) -> tetap ringan.
+  let rgb = false;
+  function rainbow(g, geo, t, alpha = 1) {
+    const grad = geo.circ
+      ? g.createConicGradient(t * 0.5, geo.cx, geo.cy)          // berputar mengelilingi lingkaran
+      : g.createLinearGradient(0, 0, geo.w, 0);
+    const shift = geo.circ ? 0 : (t * 45) % 360;                // garis: warna mengalir ke samping
+    for (let k = 0; k <= 6; k++) grad.addColorStop(k / 6, `hsla(${(shift + k * 60) % 360}, 95%, 64%, ${alpha})`);
+    return grad;
+  }
+  const lineInk = (g, w, t, alpha = 1, base = CREAM) => (rgb ? rainbow(g, { w }, t, alpha) : base);
+  const circInk = (g, cx, cy, t, alpha = 1, base = CREAM) => (rgb ? rainbow(g, { circ: true, cx, cy }, t, alpha) : base);
+
   const DRAW = {
-    bars({ g, w, h }) {
+    bars({ g, w, h }, _inner, t) {
       const n = Math.max(4, Math.round(w / 4.5)), bw = (w / n) * 0.62;
-      g.fillStyle = accent;
+      g.fillStyle = lineInk(g, w, t, 1, accent);
       for (let i = 0; i < n; i++) {
         const v = 0.1 + 0.9 * at(0.04 + (i / (n - 1)) * 0.55);
         const bh = Math.max(2, v * h), x = i * (w / n) + (w / n - bw) / 2;
         rr(g, x, h - bh, bw, bh, bw / 2); g.fill();
       }
     },
-    mirror({ g, w, h }) {                                  // atas krem, pantulan transparan
+    mirror({ g, w, h }, _inner, t) {                       // atas krem, pantulan transparan
       const n = Math.max(6, Math.round(w / 3.4)), bw = Math.max(1.4, (w / n) * 0.55), mid = h * 0.6;
+      const top = lineInk(g, w, t), low = lineInk(g, w, t, 0.38, 'rgba(244,236,220,.38)');
       for (let i = 0; i < n; i++) {
         const p = i / (n - 1), v = at(0.05 + Math.abs(p - 0.5) * 1.1) * (1 - Math.abs(p - 0.5) * 0.6);
         const up = Math.max(1.2, v * mid * 0.98), dn = up * 0.62, x = i * (w / n) + (w / n - bw) / 2;
-        g.fillStyle = CREAM; rr(g, x, mid - up, bw, up, bw / 2); g.fill();
-        g.fillStyle = 'rgba(244,236,220,.38)'; rr(g, x, mid + 1, bw, dn, bw / 2); g.fill();
+        g.fillStyle = top; rr(g, x, mid - up, bw, up, bw / 2); g.fill();
+        g.fillStyle = low; rr(g, x, mid + 1, bw, dn, bw / 2); g.fill();
       }
     },
-    wave({ g, w, h }) {                                    // garis tipis rapat, simetris
+    wave({ g, w, h }, _inner, t) {                         // garis tipis rapat, simetris
       const mid = h / 2, step = 1.6, n = Math.floor(w / step);
       g.strokeStyle = 'rgba(244,236,220,.25)'; g.lineWidth = 0.6;
       g.setLineDash([0.6, 1.8]); g.beginPath(); g.moveTo(0, mid); g.lineTo(w, mid); g.stroke(); g.setLineDash([]);
-      g.lineWidth = 0.9; g.strokeStyle = CREAM; g.shadowColor = accent; g.shadowBlur = 3;
+      g.lineWidth = 0.9; g.strokeStyle = lineInk(g, w, t); g.shadowColor = rgb ? 'rgba(255,255,255,.5)' : accent; g.shadowBlur = 3;
       g.beginPath();
       for (let i = 0; i < n; i++) {
         const p = i / (n - 1), env = Math.exp(-Math.pow((p - 0.5) / 0.3, 2));
@@ -159,10 +173,11 @@ const Viz = (() => {
       }
       g.stroke(); g.shadowBlur = 0;
     },
-    radial({ g, w, h }, inner) {                           // batang di sekeliling cover
+    radial({ g, w, h }, inner, t) {                        // batang di sekeliling cover
       const cx = w / 2, cy = h / 2, r0 = inner + 1.5, maxL = Math.min(w, h) / 2 - r0 - 0.5;
       const n = Math.max(72, Math.round((2 * Math.PI * r0) / 8));        // lingkaran besar (Mode Panggung) tetap rapat
-      g.strokeStyle = CREAM; g.lineWidth = Math.max(0.8, ((2 * Math.PI * r0) / n) * 0.45); g.lineCap = 'round';
+      g.strokeStyle = circInk(g, cx, cy, t); g.lineWidth = Math.max(0.8, ((2 * Math.PI * r0) / n) * 0.45); g.lineCap = 'round';
+      if (rgb && inner > 60) { g.shadowColor = 'rgba(255,255,255,.35)'; g.shadowBlur = inner / 30; }   // kilau halus di panggung
       g.beginPath();
       for (let i = 0; i < n; i++) {
         const a = (i / n) * Math.PI * 2 - Math.PI / 2, p = i / n;
@@ -170,12 +185,12 @@ const Viz = (() => {
         g.moveTo(cx + Math.cos(a) * r0, cy + Math.sin(a) * r0);
         g.lineTo(cx + Math.cos(a) * (r0 + L), cy + Math.sin(a) * (r0 + L));
       }
-      g.stroke();
+      g.stroke(); g.shadowBlur = 0;
     },
     ring({ g, w, h }, inner, t) {                          // helai terpilin yang berputar
       const cx = w / 2, cy = h / 2, room = Math.min(w, h) / 2 - inner, R = inner + room * 0.5;
       const amp = room * (0.28 + energy() * 0.75), K = 7, TWISTS = 3, STEPS = 120;
-      g.lineWidth = Math.max(0.9, inner / 90); g.strokeStyle = 'rgba(244,236,220,.9)'; g.shadowColor = accent; g.shadowBlur = Math.max(2.5, inner / 40);
+      g.lineWidth = Math.max(0.9, inner / 90); g.strokeStyle = circInk(g, cx, cy, t, 0.9, 'rgba(244,236,220,.9)'); g.shadowColor = rgb ? 'rgba(255,255,255,.5)' : accent; g.shadowBlur = Math.max(2.5, inner / 40);
       for (let k = 0; k < K; k++) {
         const ph = (k / K) * Math.PI * 2;
         g.beginPath();
@@ -229,6 +244,8 @@ const Viz = (() => {
     setStyle(s) { style = DRAW[s] ? s : 'bars'; document.documentElement.dataset.viz = style; wake(); },
     setFps(f) { frameMs = 1000 / (f === 60 ? 60 : 30); },
     setTap(fn) { tap = fn; wake(); },
+    setRgb(on) { rgb = !!on; wake(); },
+    get rgb() { return rgb; },
     setFeed(levels) { feed = levels; feedAt = performance.now(); },
     get style() { return style; },
   };

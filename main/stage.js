@@ -9,7 +9,7 @@
 const path = require('path');
 const { BrowserWindow, screen, desktopCapturer } = require('electron');
 
-const STAGE_CMDS = ['toggle', 'next', 'prev'];
+const STAGE_CMDS = ['toggle', 'next', 'prev', 'rgb'];
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function register(ipcMain, getWin, root, onChange = () => {}) {

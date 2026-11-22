@@ -3,7 +3,7 @@
    Hanya aktif bila widget dijalankan dengan variabel lingkungan
    CAT_DEMO=<mode>, mis. dari PowerShell:
      $env:CAT_DEMO='tasks'; .\node_modules\electron\dist\electron.exe .
-   Mode: open | tasks | settings | eq | apo | stage | stage-next | next-only | stage-skip | recs | shuffle | play | playsound | viz:<gaya>
+   Mode: open | tasks | settings | eq | apo | vizset | stage | stage-next | next-only | stage-skip | recs | shuffle | play | playsound | viz:<gaya>
    ========================================================= */
 const waitFor = (cond, ms) => new Promise((ok) => {
   const t0 = Date.now();
@@ -45,6 +45,10 @@ api.onDemo(async (mode) => {
       setState('tasks');
       setTimeout(() => { openSettings(true); $('eqTarget').querySelector('[data-t="apo"]').click(); }, 300);
       setTimeout(() => $('eqTarget').scrollIntoView({ block: 'start' }), 1500);
+      break;
+    case 'vizset':                                   // Pengaturan, gulir ke pemilih gaya equalizer
+      setState('tasks'); setTimeout(() => openSettings(true), 300);
+      setTimeout(() => $('vizPick').scrollIntoView({ block: 'start' }), 1500);
       break;
     case 'settings':
       setState('tasks'); setTimeout(() => { openSettings(true); $('keyGuide').open = true; }, 300); break;
