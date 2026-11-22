@@ -1,0 +1,42 @@
+{
+  "name": "cat-island",
+  "productName": "Cat Island",
+  "version": "1.0.0",
+  "description": "Widget desktop: tugas, Pomodoro, dan kontrol musik dengan equalizer",
+  "author": "Cat Island",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "icon": "electron build/make-icon.js",
+    "dist": "electron-builder --win nsis --x64"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "app.catisland.widget",
+    "productName": "Cat Island",
+    "copyright": "Cat Island",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["main.js", "preload.js", "index.html", "main/**", "src/**", "bridge/**", "package.json"],
+    "asarUnpack": ["bridge/**"],
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "build/icon.ico",
+      "artifactName": "Cat-Island-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Cat Island",
+      "runAfterFinish": true,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "deleteAppDataOnUninstall": false
+    }
+  }
+}

@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; frame-src https://www.youtube-nocookie.com">
+<title>Cat Island</title>
+<link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+<div id="stage" class="s-hidden">
+
+  <!-- ===== Notch kecil (mode tersembunyi) ===== -->
+  <div class="notch hit" id="notch" title="Klik atau tarik ke bawah">
+    <div class="mini-wrap">
+    <canvas class="viz-mini-ring" id="vizMiniRing"></canvas>
+    <div class="mini-cover" id="miniCover">
+      <img id="miniArt" alt="">
+      <svg class="eyes" viewBox="0 0 44 44"><path d="M9 20a6 6 0 1 0 9 4"/><path d="M26 20a6 6 0 1 0 9 4"/></svg>
+    </div>
+    </div>
+    <canvas class="viz-mini" id="vizMini"></canvas>
+    <span class="mini-pomo" id="miniPomo"></span>
+    <span class="mini-count" id="miniCount">0/0</span>
+    <span class="pull"></span>
+  </div>
+
+  <!-- ===== Pil utama ===== -->
+  <div class="pill hit" id="pill">
+    <div class="bg-art" id="bgArt"></div>
+    <div class="bg-video" id="bgVideo"></div>
+    <div class="inner-player" id="innerPlayer"></div>
+    <div class="bg-shade"></div>
+
+    <canvas class="viz-ring" id="vizRing"></canvas>
+    <div class="cover" id="cover" title="Seret untuk memindahkan">
+      <img id="art" alt="">
+      <svg class="eyes" viewBox="0 0 44 44"><path d="M9 20a6 6 0 1 0 9 4"/><path d="M26 20a6 6 0 1 0 9 4"/></svg>
+    </div>
+
+    <div class="meta">
+      <div class="title-row">
+        <canvas class="viz-line" id="vizLine"></canvas>
+        <span class="title" id="title">Spotify belum diputar</span>
+      </div>
+      <div class="artist" id="artist">Buka Spotify dan putar lagu</div>
+      <div class="bar"><div class="fill" id="fill"></div></div>
+    </div>
+
+    <div class="controls" id="controls">
+      <button data-cmd="prev" title="Sebelumnya"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+      <button data-cmd="toggle" class="play" id="playBtn" title="Putar / jeda">
+        <svg class="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg class="i-pause" viewBox="0 0 24 24"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+      </button>
+      <button data-cmd="next" title="Berikutnya"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+    </div>
+
+    <div class="pomo" id="pomo">
+      <button class="pomo-btn" id="pomoBtn" title="Mulai / jeda Pomodoro">
+        <svg class="pomo-ring" viewBox="0 0 36 36">
+          <circle cx="18" cy="18" r="15" class="track"/>
+          <circle cx="18" cy="18" r="15" class="prog" id="pomoRing"/>
+        </svg>
+        <svg class="pi-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg class="pi-pause" viewBox="0 0 24 24"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+      </button>
+      <div class="pomo-txt">
+        <div class="pomo-time" id="pomoTime">25:00</div>
+        <button class="pomo-mode" id="pomoMode" title="Klik untuk ganti mode">Fokus</button>
+      </div>
+      <button class="pomo-reset" id="pomoReset" title="Reset timer"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5"/></svg></button>
+    </div>
+
+    <button class="tasks-toggle" id="toggle" title="Daftar tugas">
+      <svg class="ring" viewBox="0 0 36 36">
+        <circle cx="18" cy="18" r="15" class="track"/>
+        <circle cx="18" cy="18" r="15" class="prog" id="ring"/>
+      </svg>
+      <span class="ring-label" id="ringLabel">0/0</span>
+      <svg class="add-ico" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h6M4 6h.01M4 12h.01M17 16v6M14 19h6"/></svg>
+      <span class="next">
+        <small id="nextLabel">Tugas berikutnya</small>
+        <span id="nextTask">Belum ada tugas</span>
+      </span>
+    </button>
+
+    <button class="hide-btn" id="hideBtn" title="Sembunyikan">
+      <svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>
+    </button>
+  </div>
+
+  <!-- ===== Dropdown rekomendasi (hover judul) ===== -->
+  <div class="recs hit" id="recs">
+    <div class="recs-head"><b>Putar berikutnya</b><small>dari YouTube Mix</small>
+      <button class="shuffle-btn" id="shuffleRecs" title="Acak rekomendasi"><svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
+    </div>
+    <ul id="recList"></ul>
+  </div>
+
+  <!-- ===== Panel tugas ===== -->
+  <div class="panel hit" id="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Tugas hari ini</h2>
+        <div class="date" id="date"></div>
+      </div>
+      <div class="stat">
+        <span id="pct">0%</span>
+        <div class="stat-bar"><i id="pctBar"></i></div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button data-filter="all" class="on">Semua</button>
+      <button data-filter="open">Belum</button>
+      <button data-filter="done">Selesai</button>
+      <span class="tab-glider"></span>
+    </div>
+    <form id="addForm" class="add-main">
+      <span class="plus">+</span>
+      <input id="newTask" placeholder="Tambah tugas lalu tekan Enter…" autocomplete="off" maxlength="120">
+    </form>
+    <ul id="list"></ul>
+    <div class="panel-foot">
+      <span id="summary"></span>
+      <span class="foot-actions">
+        <button id="clearDone">Hapus yang selesai</button>
+        <button class="icon-btn" id="openSettings" title="Pengaturan"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+      </span>
+    </div>
+
+    <!-- lembar pengaturan -->
+    <div class="sheet" id="sheet">
+      <div class="sheet-head">
+        <h3>Pengaturan</h3>
+        <button class="icon-btn" id="closeSettings" title="Tutup"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <label class="field">
+        <span>YouTube Data API key <em>untuk thumbnail HD video YouTube</em></span>
+        <input id="ytKey" type="password" placeholder="AIza…" autocomplete="off" spellcheck="false">
+      </label>
+      <details class="guide" id="keyGuide">
+        <summary>Belum punya key? Cara membuatnya (gratis, ±3 menit)</summary>
+        <ol>
+          <li>Buka Google Cloud Console, masuk dengan akun Google, lalu buat project baru (nama bebas, mis. "Cat Island").
+            <button class="link-btn" data-open="https://console.cloud.google.com/projectcreate">Buat project ↗</button></li>
+          <li>Aktifkan <b>YouTube Data API v3</b> untuk project itu: klik <b>Enable</b>.
+            <button class="link-btn" data-open="https://console.cloud.google.com/apis/library/youtube.googleapis.com">Buka YouTube Data API ↗</button></li>
+          <li>Buka <b>Credentials</b> → <b>Create credentials</b> → <b>API key</b>, lalu salin key yang muncul.
+            <button class="link-btn" data-open="https://console.cloud.google.com/apis/credentials">Buka Credentials ↗</button></li>
+          <li>Disarankan: klik key tadi → <b>API restrictions</b> → <b>Restrict key</b> → pilih <b>YouTube Data API v3</b> → <b>Save</b>.</li>
+          <li>Tempel key di kolom di atas, lalu klik <b>Simpan</b>. Cat Island akan langsung mengujinya.</li>
+        </ol>
+        <p>Tanpa kartu kredit. Kuota gratis ±100 pencarian judul per hari; hasil disimpan di cache, jadi lagu yang sama tidak dihitung ulang. Jangan bagikan key-mu ke orang lain.</p>
+      </details>
+      <div class="field">
+        <span>Gaya equalizer <em>Bergerak mengikuti suara yang sedang diputar</em></span>
+        <div class="viz-pick" id="vizPick"></div>
+      </div>
+      <label class="toggle">
+        <input id="autoFsOn" type="checkbox">
+        <span><b>Sembunyi saat layar penuh</b><em>Widget hilang saat video, film, atau game layar penuh. Ctrl + Alt + H untuk sembunyikan manual.</em></span>
+      </label>
+      <label class="toggle">
+        <input id="viz60" type="checkbox">
+        <span><b>Mode super mulus (60 fps)</b><em>Equalizer 60 fps. Menambah ±6% CPU; bawaan 30 fps sudah halus.</em></span>
+      </label>
+      <label class="toggle">
+        <input id="bgVideoOn" type="checkbox">
+        <span><b>Video latar YouTube</b><em>Loop 6 detik pertama, diblur. Menambah ±8% CPU &amp; ±300 MB RAM saat pil terbuka.</em></span>
+      </label>
+      <div class="field">
+        <span>Durasi Pomodoro (menit)</span>
+        <div class="dur">
+          <label>Fokus<input id="durFocus" type="number" min="1" max="120"></label>
+          <label>Istirahat<input id="durShort" type="number" min="1" max="60"></label>
+          <label>Istirahat panjang<input id="durLong" type="number" min="1" max="60"></label>
+        </div>
+      </div>
+      <div class="sheet-foot">
+        <span id="settingsMsg"></span>
+        <button class="btn" id="saveSettings">Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Skrip biasa yang berbagi scope global. Urutan penting:
+     visualizer & core dulu, app.js terakhir (menjalankan start-up). -->
+<script src="src/visualizer.js"></script>
+<script src="src/core.js"></script>
+<script src="src/art.js"></script>
+<script src="src/player.js"></script>
+<script src="src/media.js"></script>
+<script src="src/recs.js"></script>
+<script src="src/pomodoro.js"></script>
+<script src="src/tasks.js"></script>
+<script src="src/settings.js"></script>
+<script src="src/viz-ui.js"></script>
+<script src="src/dev.js"></script>
+<script src="src/app.js"></script>
+</body>
+</html>
