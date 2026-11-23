@@ -81,7 +81,7 @@ async function ytLookup(msg) {
   lookedUp = sig;
   // tanda seperti '-' atau '|' adalah operator pencarian YouTube ('-speed' = KECUALIKAN 'speed')
   const q = `${msg.title} ${msg.artist || ''}`.replace(/[-|"#~*()[\]{}:!?.,+]/g, ' ').replace(/\s+/g, ' ').trim();
-  const res = await api.ytLookup(q, { dur, smtc: art.smtc });
+  const res = await api.ytLookup(q, { dur, smtc: art.smtc, title: msg.title });
   if (!res || res.error || art.key !== msg.key) return;
   console.log('[art] video cocok:', res.id || '(tidak ada)');
   art.vid = res.id || null;

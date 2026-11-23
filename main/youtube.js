@@ -89,6 +89,8 @@ function signature(img) {
   } catch { return null; }
 }
 const sigDiff = (a, b) => { let d = 0; for (let i = 0; i < a.length; i++) d += Math.abs(a[i] - b[i]); return d / a.length; };
+const unescapeHtml = (x) => x.replace(/&(amp|lt|gt|quot|#39|#x27);/g, (_, e) => ({ amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", '#x27': "'" })[e]);
+const norm = (x) => (x || '').toLowerCase().normalize('NFKC').replace(/[s​]+/g, ' ').trim();
 const SAME_THUMB = 0.45;   // rata-rata selisih (dalam satuan simpangan baku) untuk "gambar sama"
 
 async function urlSig(url) {
@@ -115,41 +117,49 @@ function register(ipcMain, getKey, cacheFile) {
   const search = async (query, key) => {
     const j = await (await fetch(`${API}/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(query)}&key=${encodeURIComponent(key)}`)).json();
     if (j.error) throw new Error(j.error.message);
-    const ids = (j.items || []).map((x) => x.id?.videoId).filter(Boolean);
-    return ids.length ? durations(ids, key) : [];
+    const items = (j.items || []).filter((x) => x.id?.videoId);
+    if (!items.length) return [];
+    const list = await durations(items.map((x) => x.id.videoId), key);
+    list.forEach((c, i) => { c.title = unescapeHtml(items[i].snippet?.title || ''); c.ch = unescapeHtml(items[i].snippet?.channelTitle || ''); });
+    return list;
   };
-  // pilih kandidat yang cocok dengan durasi & thumbnail Windows
-  const pick = async (cands, dur, smtcSig) => {
-    const durOk = dur > 0 ? cands.filter((c) => c.dur > 0 && Math.abs(c.dur - dur) <= Math.max(2, dur * 0.01)) : [];
-    const pool = durOk.length ? durOk : cands;
+  /* Pilih kandidat yang SAMA dengan yang diputar browser. Urutan bukti:
+     1) thumbnail Windows == thumbnail kandidat (paling pasti)
+     2) judul tab YouTube persis sama dengan judul video (+ durasi bila ada)
+     3) satu-satunya kandidat dengan durasi yang sama (±1,5 dtk)
+     Tidak ada bukti -> null: lebih baik cover saja daripada versi lain (lirik/karaoke). */
+  const pick = async (cands, want, smtcSig) => {
+    const dur = want.dur, durOk = (c) => dur > 0 && c.dur > 0 && Math.abs(c.dur - dur) <= 1.5;
     if (smtcSig) {
-      // banyak versi berdurasi sama (MV/lirik/karaoke) -> thumbnail yang menentukan
-      for (const list of durOk.length ? [durOk, cands] : [cands]) {
-        let best = null, bd = Infinity;
-        for (const c of list) { const s = await thumbSig(c.id); if (!s) continue; const d = sigDiff(s, smtcSig); if (d < bd) { bd = d; best = c; } }
-        console.log('[yt] cocokkan', list.length, 'kandidat; terbaik', best?.id, bd.toFixed(3));
-        if (best && bd < SAME_THUMB) return best.id;
-      }
-      return durOk.length === 1 ? durOk[0].id : null;
+      let best = null, bd = Infinity;
+      for (const c of cands) { const s = await thumbSig(c.id); if (!s) continue; const d = sigDiff(s, smtcSig); if (d < bd) { bd = d; best = c; } }
+      console.log('[yt] thumbnail: terbaik', best?.id, bd.toFixed(3), 'dari', cands.length);
+      if (best && bd < SAME_THUMB) return best.id;
     }
-    if (durOk.length) return durOk[0].id;
-    return dur > 0 ? null : cands[0]?.id || null;   // tanpa durasi & thumbnail: hasil teratas
+    const t = norm(want.title);
+    const same = t ? cands.filter((c) => norm(c.title) === t) : [];
+    const sameDur = same.filter(durOk);
+    if (sameDur.length) return sameDur[0].id;
+    if (same.length && !(dur > 0 && same.every((c) => c.dur > 0))) return same[0].id;
+    const d = cands.filter(durOk);
+    if (d.length === 1) return d[0].id;
+    if (!smtcSig && !t && !(dur > 0)) return cands[0]?.id || null;
+    return null;
   };
 
   ipcMain.handle('yt-lookup', async (_e, query, want = {}) => {
     const key = getKey();
     if (!key || !query) return null;
-    const dur = Number(want.dur) || 0;
+    const w = { dur: Number(want.dur) || 0, title: String(want.title || '') };
     const smtcSig = want.smtc ? signature(nativeImage.createFromDataURL(want.smtc)) : null;
     try {
       let cands = lookupCache.get(query);
-      let fresh = false;
-      if (typeof cands === 'string') cands = await durations([cands], key);   // cache lama (1 id)
-      if (!Array.isArray(cands) || !cands.length) { cands = await search(query, key); fresh = true; }
-      let id = await pick(cands, dur, smtcSig);
-      // cache lama hanya berisi hasil teratas dan tidak cocok -> cari ulang sekali dengan 10 kandidat
-      if (!id && !fresh && cands.length < 2) { cands = await search(query, key); fresh = true; id = await pick(cands, dur, smtcSig); }
-      if (cands.length) lookupCache.set(query, cands);
+      // cache versi lama (1 id / tanpa judul) tidak cukup untuk memilih versi yang benar -> cari ulang sekali
+      if (!Array.isArray(cands) || cands.length < 2 || cands.some((c) => typeof c.title !== 'string')) {
+        cands = await search(query, key);
+        if (cands.length) lookupCache.set(query, cands);
+      }
+      const id = await pick(cands, w, smtcSig);
       if (!id) return { id: null };
       return { id, img: await hdThumb(id) };
     } catch (err) { return { error: String(err.message || err) }; }
