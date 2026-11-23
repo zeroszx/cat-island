@@ -17,7 +17,9 @@ function stageData(full) {
   // Player internal: video panggung baru dimuat SETELAH player bersuara benar-benar berputar;
   // player YouTube baru tidak mau mulai bila sudah ada player YouTube lain yang aktif.
   const innerReady = !inner.on || (inner.info.playerState === PS.PLAYING && (inner.info.currentTime || 0) > 1);
-  const d = { rgb: !!settings.vizRgb, vid: innerReady ? curVid() || null : null, t, playing, title: $('title').textContent, artist: $('artist').textContent };
+  const pomoInfo = { mode: pomo.mode, running: pomo.running, endAt: pomo.endAt, remaining: pomo.remaining, full: pomo.full,
+    label: POMO_LABEL[pomo.mode], color: POMO_COLOR[pomo.mode] };
+  const d = { pomo: pomoInfo, rgb: !!settings.vizRgb, vid: innerReady ? curVid() || null : null, t, playing, title: $('title').textContent, artist: $('artist').textContent };
   // cover dikirim setiap gambarnya berubah (cover yang datang belakangan / versi HD), bukan tiap detik:
   // data URL bisa ratusan KB
   const img = art.hd || art.smtc || null;

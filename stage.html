@@ -49,14 +49,21 @@
     color: rgba(244,236,220,.6); transition: opacity .5s ease .4s; }
   body.on #hint { opacity: 1; }
   /* lama istirahat sejak Mode Panggung dibuka (pojok kanan atas, jauh dari lingkaran & teks) */
-  #rest { position: fixed; top: 2.2vh; right: 2.2vw; display: flex; align-items: center; gap: 1vmin;
-    padding: .9vmin 1.6vmin .9vmin 1.2vmin; border-radius: 999px; background: rgba(0,0,0,.32);
+  /* hitung mundur Pomodoro dari widget (mode, sisa waktu, jalan/jeda), pojok kanan atas */
+  #rest { --pc: #6fd6a8; position: fixed; top: 2.2vh; right: 2.2vw; display: flex; align-items: center; gap: 1vmin;
+    padding: .9vmin 1.6vmin .9vmin 1.2vmin; border-radius: 999px; background: rgba(0,0,0,.32); overflow: hidden;
     box-shadow: inset 0 0 0 1px rgba(244,236,220,.12); backdrop-filter: blur(6px);
     opacity: 0; transition: opacity .5s ease .3s; }
   body.on #rest { opacity: 1; }
-  #rest svg { width: 2.4vmin; height: 2.4vmin; fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  #rest svg { width: 2.4vmin; height: 2.4vmin; fill: none; stroke: var(--pc); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   #rest span { font-size: 1.4vmin; opacity: .7; }
   #restTime { font-size: 2.4vmin; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+  #rest .i-focus, #rest.focus .i-break { display: none; }
+  #rest.focus .i-focus { display: block; }
+  #rest.paused #restTime { opacity: .55; }
+  #rest.paused span::after { content: ' · dijeda'; }
+  #restBar { position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: var(--pc);
+    transform-origin: left; transform: scaleX(0); opacity: .85; }
   kbd { font: inherit; padding: 1px 6px; border-radius: 5px; background: rgba(255,255,255,.1); }
 
   @keyframes drift { from { transform: scale(1); } to { transform: scale(1.12); } }
@@ -76,8 +83,10 @@
   </div>
   <div id="meta"><span id="title"></span><span id="artist"></span></div>
   <div id="rest">
-    <svg viewBox="0 0 24 24"><path d="M4 9h13v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M8 3c-.6.8-.6 1.7 0 2.5M12 3c-.6.8-.6 1.7 0 2.5"/></svg>
-    <span>Istirahat</span><b id="restTime">0:00</b>
+    <svg class="i-break" viewBox="0 0 24 24"><path d="M4 9h13v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M8 3c-.6.8-.6 1.7 0 2.5M12 3c-.6.8-.6 1.7 0 2.5"/></svg>
+    <svg class="i-focus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/></svg>
+    <span id="restLabel">Istirahat</span><b id="restTime">5:00</b>
+    <i id="restBar"></i>
   </div>
   <div id="hint"><kbd>Esc</kbd> / klik di luar lingkaran: keluar · <kbd>Spasi</kbd>: putar/jeda · <kbd>←</kbd> <kbd>→</kbd>: lagu · <kbd>R</kbd>: RGB</div>
 

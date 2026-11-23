@@ -127,6 +127,7 @@ function apply(s) {
   if ('artist' in s) $('artist').textContent = (s.artist || '').replace(/\s*·\s*Cat Island$/, '');
   Viz.setPlaying(!!s.playing);
   if ('rgb' in s) Viz.setRgb(s.rgb);
+  if (s.pomo) applyPomo(s.pomo);
   document.body.classList.toggle('paused', !s.playing);
 
   if ((s.vid || null) !== vid) { vid = s.vid || null; embed(vid, s.t); return; }
@@ -153,16 +154,26 @@ api.onStage((m) => {
 
 api.onStageLevels((lv) => Viz.setFeed(lv));
 
-/* ---------------- lama istirahat ---------------- */
-// dihitung dari saat panggung dibuka; jam:menit:detik bila lewat 1 jam
-const restFrom = Date.now();
-function tickRest() {
-  const s = Math.floor((Date.now() - restFrom) / 1000), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), d = s % 60;
-  const pad = (x) => String(x).padStart(2, '0');
-  $('restTime').textContent = h ? `${h}:${pad(m)}:${pad(d)}` : `${m}:${pad(d)}`;
+/* ---------------- timer Pomodoro (hitung mundur) ----------------
+   Sama dengan timer di widget: widget mengirim mode, endAt/remaining, dan status jalan
+   tiap detik; panggung menghitung sisa waktunya sendiri dengan jam yang sama (Date.now). */
+let pomo = null;
+function tickPomo() {
+  if (!pomo) return;
+  const rem = Math.max(0, pomo.running ? pomo.endAt - Date.now() : pomo.remaining);
+  const s = Math.ceil(rem / 1000), pad = (x) => String(x).padStart(2, '0');
+  $('restTime').textContent = `${Math.floor(s / 60)}:${pad(s % 60)}`;
+  $('restBar').style.transform = `scaleX(${pomo.full ? Math.min(1, 1 - rem / pomo.full) : 0})`;
 }
-tickRest();
-setInterval(tickRest, 1000);
+function applyPomo(p) {
+  pomo = p;
+  const box = $('rest');
+  box.className = (p.mode === 'focus' ? 'focus' : 'break') + (p.running ? '' : ' paused');
+  box.style.setProperty('--pc', p.color || '#6fd6a8');
+  $('restLabel').textContent = p.label || 'Istirahat';
+  tickPomo();
+}
+setInterval(tickPomo, 250);
 
 /* ---------------- kontrol ---------------- */
 let closing = false;
