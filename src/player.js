@@ -1,6 +1,6 @@
 /* =========================================================
-   Cat Island – player internal
-   Video YouTube diputar DI Cat Island (dengan suara) saat rekomendasi
+   Noctark – player internal
+   Video YouTube diputar DI Noctark (dengan suara) saat rekomendasi
    diklik atau ⏭ ditekan pada video YouTube tunggal. Iframe-nya sekaligus
    menjadi latar pil yang diblur. Antrean diisi dari YouTube Mix.
    ========================================================= */
@@ -23,7 +23,7 @@ function innerRender() {
   setPlayingUI(st === PS.PLAYING || st === PS.BUFFERING);
   $('controls').classList.remove('disabled');
   $('title').textContent = inner.cur?.title || inner.info.videoData?.title || 'Memuat…';
-  $('artist').textContent = (inner.cur?.channel || inner.info.videoData?.author || '') + ' · Cat Island';
+  $('artist').textContent = (inner.cur?.channel || inner.info.videoData?.author || '') + ' · Noctark';
   updateRecsHint();
 }
 

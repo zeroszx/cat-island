@@ -1,5 +1,5 @@
 /* =========================================================
-   Cat Island – dropdown rekomendasi (hover judul)
+   Noctark – dropdown rekomendasi (hover judul)
    Isi dari YouTube Mix (playlist RD<id>) — 1 unit kuota per video.
    Pool s.d. 24 video, 8 ditampilkan; tombol ⤨ mengacak pool & antrean.
    ========================================================= */
@@ -80,7 +80,7 @@ function playRec(x) {
   if (!x) return;
   showRecs(false);
   recsFor = null; recsData = null;   // rekomendasi berikutnya diambil dari video baru
-  innerPlay(x);                      // diputar di Cat Island, bukan di browser
+  innerPlay(x);                      // diputar di Noctark, bukan di browser
 }
 
 // hover judul -> buka; keluar dari judul & dropdown -> tutup

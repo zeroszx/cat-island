@@ -1,5 +1,5 @@
 /* =========================================================
-   Cat Island – YouTube Data API (proses utama)
+   Noctark – YouTube Data API (proses utama)
    Kuota harian gratis 10.000 unit:
      yt-lookup : search.list        = 100 unit / judul (di-cache ke disk: yt-cache.json)
      yt-recs   : playlistItems (Mix)  =   1 unit / video (di-cache)

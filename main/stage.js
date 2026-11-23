@@ -1,5 +1,5 @@
 /* =========================================================
-   Cat Island – Mode Panggung
+   Noctark – Mode Panggung
    Jendela selayar penuh: video (dipotong pas di tengah) dalam bingkai lingkaran,
    visualizer melingkar di sekelilingnya, dan sisa layar diblur.
    Latar blur = tangkapan layar yang diambil tepat sebelum panggung muncul

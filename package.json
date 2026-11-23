@@ -1,9 +1,9 @@
 {
-  "name": "cat-island",
-  "productName": "Cat Island",
+  "name": "noctark",
+  "productName": "Noctark",
   "version": "1.0.0",
   "description": "Widget desktop: tugas, Pomodoro, dan kontrol musik dengan equalizer",
-  "author": "Cat Island",
+  "author": "Noctark",
   "license": "MIT",
   "main": "main.js",
   "scripts": {
@@ -16,16 +16,16 @@
     "electron-builder": "^25.1.8"
   },
   "build": {
-    "appId": "app.catisland.widget",
-    "productName": "Cat Island",
-    "copyright": "Cat Island",
+    "appId": "app.noctark.widget",
+    "productName": "Noctark",
+    "copyright": "Noctark",
     "directories": { "output": "dist", "buildResources": "build" },
     "files": ["main.js", "preload.js", "index.html", "stage.html", "main/**", "src/**", "bridge/**", "package.json"],
     "asarUnpack": ["bridge/**"],
     "win": {
       "target": [{ "target": "nsis", "arch": ["x64"] }],
       "icon": "build/icon.ico",
-      "artifactName": "Cat-Island-Setup-${version}.${ext}"
+      "artifactName": "Noctark-Setup-${version}.${ext}"
     },
     "nsis": {
       "oneClick": false,
@@ -33,7 +33,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Cat Island",
+      "shortcutName": "Noctark",
       "runAfterFinish": true,
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",

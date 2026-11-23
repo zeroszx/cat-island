@@ -1,7 +1,7 @@
 /* =========================================================
-   Cat Island – tugas & langkah kecil (subtugas)
+   Noctark – tugas & langkah kecil (subtugas)
    Data: [{ id, text, done, open, subs: [{ id, text, done }], createdAt }]
-   Disimpan oleh proses utama ke %APPDATA%\cat-island\tasks.json
+   Disimpan oleh proses utama ke %APPDATA%\noctark\tasks.json
    ========================================================= */
 let tasks = [];
 let filter = 'all';                // all | open | done

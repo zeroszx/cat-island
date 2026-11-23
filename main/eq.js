@@ -1,5 +1,5 @@
 /* =========================================================
-   Cat Island – equalizer untuk player internal
+   Noctark – equalizer untuk player internal
    Player internal adalah iframe youtube-nocookie (lintas origin), jadi renderer
    tidak bisa menyentuh <video>-nya. Proses utama menyuntikkan rantai filter
    Web Audio langsung ke frame itu: video → 8 BiquadFilter → preamp → speaker.

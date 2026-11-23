@@ -1,5 +1,5 @@
 /* =========================================================
-   Cat Island – penghubung & start-up
+   Noctark – penghubung & start-up
    Dimuat paling akhir: semua modul lain sudah terdefinisi.
    ========================================================= */
 api.getSettings().then((s) => {

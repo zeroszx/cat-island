@@ -1,5 +1,5 @@
 /* =========================================================
-   Cat Island – mode uji (khusus pengembangan)
+   Noctark – mode uji (khusus pengembangan)
    Hanya aktif bila widget dijalankan dengan variabel lingkungan
    CAT_DEMO=<mode>, mis. dari PowerShell:
      $env:CAT_DEMO='tasks'; .\node_modules\electron\dist\electron.exe .
@@ -71,7 +71,7 @@ api.onDemo(async (mode) => {
       setState('open');
       await waitFor(isYouTube, 20000);
       const first = (await loadRecs())[0];
-      console.log('[dev] putar di Cat Island:', first?.title, '| sumber luar:', media.status);
+      console.log('[dev] putar di Noctark:', first?.title, '| sumber luar:', media.status);
       playRec(first);
       break;
     default:

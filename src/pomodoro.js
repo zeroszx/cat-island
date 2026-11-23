@@ -1,5 +1,5 @@
 /* =========================================================
-   Cat Island – timer Pomodoro
+   Noctark – timer Pomodoro
    Fokus → istirahat pendek (×3) → istirahat panjang. Status disimpan
    di localStorage sehingga tetap jalan setelah widget dimuat ulang.
    ========================================================= */

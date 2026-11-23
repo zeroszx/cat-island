@@ -1,5 +1,5 @@
 /* =========================================================
-   Cat Island – cover, warna aksen, latar pil
+   Noctark – cover, warna aksen, latar pil
    - art.smtc : thumbnail dari Windows (bridge)
    - art.hd   : thumbnail HD hasil YouTube Data API (bila ada API key)
    - video latar: 6 detik pertama video YouTube, tanpa suara, diblur, diulang

@@ -1,5 +1,5 @@
 /* =========================================================
-   Cat Island – equalizer suara (player internal)
+   Noctark – equalizer suara (player internal)
    8 band, preset + slider di Pengaturan. Perubahan langsung terdengar dan
    langsung disimpan (settings.eq = { preset, gains }). Penerapan ke frame
    YouTube dilakukan proses utama (main/eq.js).
@@ -24,7 +24,7 @@ const eqState = () => {
 const FLAT = EQ_PRESETS.flat.g;
 const eqTarget = () => (settings.eqTarget === 'apo' ? 'apo' : 'inner');
 
-// Player internal: dapat gain hanya bila target = Cat Island (agar tidak dobel dengan APO).
+// Player internal: dapat gain hanya bila target = Noctark (agar tidak dobel dengan APO).
 // Elemen <video> baru ada beberapa saat setelah iframe dimuat -> coba ulang sebentar.
 let eqTry = 0;
 async function eqApply(retry = false) {
@@ -60,7 +60,7 @@ async function apoRefresh() {
   $('apoSteps').hidden = st.installed;
   $('apoSetup').hidden = !st.installed || st.ready;
   if (st.ready) { msg.textContent = 'Terhubung ✓ Equalizer berlaku untuk semua suara: Brave, Spotify, game, dll.'; msg.className = 'ok'; }
-  else if (st.installed) { msg.textContent = 'Equalizer APO terpasang, tinggal dihubungkan ke Cat Island.'; msg.className = ''; }
+  else if (st.installed) { msg.textContent = 'Equalizer APO terpasang, tinggal dihubungkan ke Noctark.'; msg.className = ''; }
   else { msg.textContent = 'Equalizer APO belum terpasang. Ikuti langkah berikut:'; msg.className = ''; }
   apoApply();
 }

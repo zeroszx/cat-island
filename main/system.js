@@ -1,7 +1,7 @@
 /* =========================================================
-   Cat Island – integrasi Windows (proses utama)
+   Noctark – integrasi Windows (proses utama)
    - autostart lewat HKCU\...\Run
-       versi terinstal  -> "Cat Island.exe"
+       versi terinstal  -> "Noctark.exe"
        dari folder kode -> launcher .vbs (tanpa jendela konsol)
    - ikon tray dibuat dari bitmap, tanpa file gambar
    ========================================================= */
@@ -10,14 +10,14 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 
 const RUN_KEY = 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run';
-const RUN_NAME = 'CatIsland';
+const RUN_NAME = 'Noctark';
 const startCommand = () => (app.isPackaged
   ? `"${process.execPath}"`
-  : `wscript.exe "${path.join(__dirname, '..', 'Jalankan Cat Island.vbs')}"`);
+  : `wscript.exe "${path.join(__dirname, '..', 'Jalankan Noctark.vbs')}"`);
 
-function readRun() {
+function readRun(name = RUN_NAME) {
   try {
-    const out = execFileSync('reg', ['query', RUN_KEY, '/v', RUN_NAME], { stdio: 'pipe' }).toString();
+    const out = execFileSync('reg', ['query', RUN_KEY, '/v', name], { stdio: 'pipe' }).toString();
     return out.split(/REG_SZ\s+/)[1]?.trim() || null;
   } catch { return null; }
 }
@@ -33,7 +33,13 @@ function setAutostart(on) {
 
 // Versi terinstal: bila autostart sudah aktif tapi masih menunjuk launcher lama (.vbs),
 // alihkan ke .exe ini agar Windows menjalankan versi terinstal.
+// Nama lama ("CatIsland", launcher "Jalankan Cat Island.vbs"): bila autostart lama aktif,
+// hapus entri lama dan daftarkan ulang dengan nama Noctark.
 function migrateAutostart() {
+  if (readRun('CatIsland')) {
+    try { execFileSync('reg', ['delete', RUN_KEY, '/v', 'CatIsland', '/f'], { stdio: 'pipe' }); } catch {}
+    setAutostart(true);
+  }
   const cur = readRun();
   if (app.isPackaged && cur && cur !== startCommand()) setAutostart(true);
 }

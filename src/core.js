@@ -1,5 +1,5 @@
 /* =========================================================
-   Cat Island – inti
+   Noctark – inti
    Helper bersama, state jendela (notch → pil → panel),
    click-through, notch tarik/klik, dan seret untuk memindahkan.
    Semua file di src/ adalah skrip biasa yang berbagi scope global;

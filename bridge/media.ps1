@@ -1,5 +1,5 @@
 ﻿# =========================================================
-# Cat Island - bridge media Windows (SMTC)
+# Noctark - bridge media Windows (SMTC)
 # Membaca & mengontrol pemutar yang aktif (Spotify diutamakan, lalu browser, dll.)
 # dan mendeteksi aplikasi layar penuh.
 #

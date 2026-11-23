@@ -1,5 +1,5 @@
 /* =========================================================
-   Cat Island – mesin visualizer audio
+   Noctark – mesin visualizer audio
    5 gaya: bars (klasik), mirror (cermin), wave (gelombang halus),
            radial (batang melingkar), ring (pita terpilin)
    Data: audio sistem (loopback) -> AnalyserNode, dengan auto-gain.

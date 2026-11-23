@@ -1,7 +1,7 @@
 /* =========================================================
-   Cat Island – halaman Mode Panggung (stage.html)
+   Noctark – halaman Mode Panggung (stage.html)
    Video ditampilkan TANPA suara dan diselaraskan dengan posisi lagu yang
-   sedang diputar (browser/Spotify/player Cat Island) -> suara tetap dari sumbernya.
+   sedang diputar (browser/Spotify/player Noctark) -> suara tetap dari sumbernya.
    Data datang dari widget setiap detik (lihat stage-link.js).
    ========================================================= */
 const api = window.island;
@@ -25,7 +25,7 @@ function embed(id, t) {
   f.allow = 'autoplay; encrypted-media';
   f.tabIndex = -1;
   // Sengaja www.youtube.com, BUKAN youtube-nocookie: YouTube hanya membiarkan satu player aktif
-  // per origin. Player bersuara Cat Island memakai youtube-nocookie; bila panggung memakai origin
+  // per origin. Player bersuara Noctark memakai youtube-nocookie; bila panggung memakai origin
   // yang sama, player bersuara dijeda/macet (lagu dari ⏭/← tidak terputar).
   f.src = `https://www.youtube.com/embed/${id}?controls=0&disablekb=1&fs=0&iv_load_policy=3`
     + `&modestbranding=1&playsinline=1&rel=0&enablejsapi=1&autoplay=1&mute=1&start=${Math.max(0, Math.floor(t || 0))}`;
@@ -124,7 +124,7 @@ setInterval(() => {
 function apply(s) {
   if (s.art) $('art').src = s.art;
   if ('title' in s) $('title').textContent = s.title || '';
-  if ('artist' in s) $('artist').textContent = (s.artist || '').replace(/\s*·\s*Cat Island$/, '');
+  if ('artist' in s) $('artist').textContent = (s.artist || '').replace(/\s*·\s*Noctark$/, '');
   Viz.setPlaying(!!s.playing);
   if ('rgb' in s) Viz.setRgb(s.rgb);
   if (s.pomo) applyPomo(s.pomo);

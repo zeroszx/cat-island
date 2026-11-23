@@ -1,6 +1,6 @@
 /* =========================================================
-   Cat Island – lembar Pengaturan (ikon ⚙ di panel tugas)
-   Pengaturan disimpan proses utama di %APPDATA%\cat-island\settings.json
+   Noctark – lembar Pengaturan (ikon ⚙ di panel tugas)
+   Pengaturan disimpan proses utama di %APPDATA%\noctark\settings.json
    ========================================================= */
 function openSettings(on) {
   $('sheet').classList.toggle('on', on);

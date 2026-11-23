@@ -1,5 +1,5 @@
 /* =========================================================
-   Cat Island – proses utama Electron
+   Noctark – proses utama Electron
    Jendela transparan (notch/pil/panel), tray, shortcut, bridge media,
    penyimpanan tugas & pengaturan, sembunyi saat layar penuh.
    ========================================================= */
@@ -24,12 +24,25 @@ const SHORTCUT = 'Control+Alt+Space';               // buka / tutup pil
 const HIDE_SHORTCUT = 'Control+Alt+H';              // sembunyikan widget sepenuhnya
 const MEDIA_CMDS = ['toggle', 'pause', 'next', 'prev'];
 
-// Data selalu di %APPDATA%\cat-island, baik dari folder proyek maupun versi terinstal
-// (tanpa ini versi terinstal memakai %APPDATA%\Cat Island dan tugas lama tidak terbaca).
-app.setPath('userData', path.join(app.getPath('appData'), 'cat-island'));
+// Data selalu di %APPDATA%\noctark, baik dari folder proyek maupun versi terinstal
+// (tanpa ini versi terinstal memakai %APPDATA%\Noctark dan tugas lama tidak terbaca).
+// Nama lama aplikasi = "Cat Island": pindahkan datanya (pengaturan, API key, tugas, cache) sekali.
+(function migrateData() {
+  const base = app.getPath('appData'), dst = path.join(base, 'noctark'), src = path.join(base, 'cat-island');
+  if (fs.existsSync(dst) || !fs.existsSync(src)) return;
+  try { fs.renameSync(src, dst); return; } catch {}
+  // folder lama sedang dipakai -> salin file data saja
+  try {
+    fs.mkdirSync(dst, { recursive: true });
+    for (const f of ['settings.json', 'tasks.json', 'yt-cache.json', 'yt-aspect.json']) {
+      if (fs.existsSync(path.join(src, f))) fs.copyFileSync(path.join(src, f), path.join(dst, f));
+    }
+  } catch {}
+})();
+app.setPath('userData', path.join(app.getPath('appData'), 'noctark'));
 if (!app.requestSingleInstanceLock()) app.quit();
 
-// Embed YouTube harus bisa autoplay, dan Cat Island TIDAK boleh muncul sebagai sesi
+// Embed YouTube harus bisa autoplay, dan Noctark TIDAK boleh muncul sebagai sesi
 // media Windows (kalau muncul, bridge akan membaca widget ini sendiri).
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 // CalculateNativeWinOcclusion: saat Mode Panggung menutupi pil, Chromium menganggap jendela pil
@@ -38,7 +51,7 @@ app.commandLine.appendSwitch('disable-features', 'HardwareMediaKeyHandling,Media
 
 let win, tray, media;
 
-/* ---------------- penyimpanan (%APPDATA%\cat-island) ---------------- */
+/* ---------------- penyimpanan (%APPDATA%\noctark) ---------------- */
 const dataDir = app.getPath('userData');
 const tasksFile = path.join(dataDir, 'tasks.json');
 const settingsFile = path.join(dataDir, 'settings.json');
@@ -72,7 +85,7 @@ function keepOnTop() {
 
 /* ---------------- sembunyi penuh: manual atau saat aplikasi layar penuh ---------------- */
 let fullscreenApp = false, manualHidden = false;
-// laporan mentah bridge. Panggung (Mode Panggung) milik Cat Island sendiri juga terdeteksi
+// laporan mentah bridge. Panggung (Mode Panggung) milik Noctark sendiri juga terdeteksi
 // "layar penuh"; kalau dihitung, pil disembunyikan dan player YouTube di dalamnya macet.
 let fullscreenRaw = false, stageCtl = null;
 function updateFullscreen() { fullscreenApp = fullscreenRaw && !stageCtl?.isOpen(); applyVisibility(); }
@@ -178,7 +191,7 @@ function setAndSync(key, value) { settings[key] = value; saveSettings(); win.web
 
 function buildTrayMenu() {
   tray.setContextMenu(Menu.buildFromTemplate([
-    { label: 'Cat Island', enabled: false },
+    { label: 'Noctark', enabled: false },
     { type: 'separator' },
     { label: `Buka / tutup  (${keys(SHORTCUT)})`, click: toggleOpen },
     { label: `Sembunyikan widget  (${keys(HIDE_SHORTCUT)})`, type: 'checkbox', checked: manualHidden, click: toggleManualHide },
@@ -203,7 +216,7 @@ app.whenReady().then(() => {
   session.defaultSession.webRequest.onBeforeSendHeaders(
     { urls: ['*://*.youtube-nocookie.com/*', '*://*.youtube.com/*', '*://*.googlevideo.com/*'] },
     (details, cb) => {
-      if (!details.requestHeaders.Referer) details.requestHeaders.Referer = 'https://cat-island.app/';
+      if (!details.requestHeaders.Referer) details.requestHeaders.Referer = 'https://noctark.app/';
       cb({ requestHeaders: details.requestHeaders });
     });
   // Visualizer: audio sistem (loopback) untuk getDisplayMedia tanpa dialog. Video layar wajib
@@ -218,7 +231,7 @@ app.whenReady().then(() => {
   createWindow();
   startMedia();
   tray = new Tray(trayIcon());
-  tray.setToolTip('Cat Island');
+  tray.setToolTip('Noctark');
   tray.on('click', () => (manualHidden ? unhide() : win.webContents.send('toggle-open')));
   buildTrayMenu();
   globalShortcut.register(SHORTCUT, () => { toggleOpen(); win.focus(); });

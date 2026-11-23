@@ -1,5 +1,5 @@
 /* =========================================================
-   Cat Island – jembatan aman renderer ↔ proses utama
+   Noctark – jembatan aman renderer ↔ proses utama
    Hanya fungsi di bawah ini yang bisa dipanggil halaman (window.island).
    ========================================================= */
 const { contextBridge, ipcRenderer } = require('electron');

@@ -1,9 +1,9 @@
 /* =========================================================
-   Cat Island – integrasi Equalizer APO (equalizer untuk SEMUA suara Windows)
-   Equalizer APO dipasang sendiri oleh pengguna (butuh admin). Cat Island hanya
-   menulis config\cat-island.txt, yang di-Include dari config.txt; APO memuat
+   Noctark – integrasi Equalizer APO (equalizer untuk SEMUA suara Windows)
+   Equalizer APO dipasang sendiri oleh pengguna (butuh admin). Noctark hanya
+   menulis config\noctark.txt, yang di-Include dari config.txt; APO memuat
    ulang file itu otomatis setiap berubah.
-   Penyiapan satu kali (tombol "Hubungkan", lewat UAC): buat cat-island.txt,
+   Penyiapan satu kali (tombol "Hubungkan", lewat UAC): buat noctark.txt,
    beri grup Users izin ubah HANYA pada file itu, tambahkan baris Include.
    ========================================================= */
 const fs = require('fs');
@@ -11,8 +11,10 @@ const path = require('path');
 const { execFile } = require('child_process');
 const { BANDS } = require('./eq');
 
-const FILE = 'cat-island.txt';
-const INCLUDE_RX = /^\s*Include:\s*cat-island\.txt\s*$/im;
+const FILE = 'noctark.txt';
+// nama lama aplikasi = "Cat Island": penyiapan lama (cat-island.txt) tetap dipakai tanpa UAC ulang
+const LEGACY = 'cat-island.txt';
+const includeRx = (name) => new RegExp('^\\s*Include:\\s*' + name.replace(/[.-]/g, '\\$&') + '\\s*$', 'im');
 
 function run(cmd, args) {
   return new Promise((ok) => execFile(cmd, args, { windowsHide: true }, (err, out) => ok(err ? '' : String(out))));
@@ -33,16 +35,22 @@ async function status() {
   const dir = await findDir();
   if (!dir) return { installed: false };
   const cfgDir = path.join(dir, 'config');
-  let linked = false, writable = false;
-  try { linked = INCLUDE_RX.test(fs.readFileSync(path.join(cfgDir, 'config.txt'), 'utf8')); } catch {}
-  try { fs.accessSync(path.join(cfgDir, FILE), fs.constants.W_OK); writable = true; } catch {}
-  return { installed: true, dir, linked, writable, ready: linked && writable };
+  let cfg = '';
+  try { cfg = fs.readFileSync(path.join(cfgDir, 'config.txt'), 'utf8'); } catch {}
+  const check = (name) => {
+    let w = false;
+    try { fs.accessSync(path.join(cfgDir, name), fs.constants.W_OK); w = true; } catch {}
+    return { linked: includeRx(name).test(cfg), writable: w };
+  };
+  let file = FILE, c = check(FILE);
+  if (!(c.linked && c.writable)) { const old = check(LEGACY); if (old.linked && old.writable) { file = LEGACY; c = old; } }
+  return { installed: true, dir, file, linked: c.linked, writable: c.writable, ready: c.linked && c.writable };
 }
 
 function render(gains) {
   const pre = -Math.max(0, ...gains) * 0.5;
   const lines = [
-    '# Dibuat otomatis oleh Cat Island - ubah lewat Pengaturan > Equalizer suara',
+    '# Dibuat otomatis oleh Noctark - ubah lewat Pengaturan > Equalizer suara',
     `Preamp: ${pre.toFixed(1)} dB`,
     ...BANDS.map((f, i) => {
       const g = gains[i].toFixed(1);
@@ -57,7 +65,7 @@ function render(gains) {
 async function apply(gains) {
   const st = await status();
   if (!st.ready) return st.installed ? 'notlinked' : 'notinstalled';
-  try { fs.writeFileSync(path.join(st.dir, 'config', FILE), render(gains), 'utf8'); return 'ok'; }
+  try { fs.writeFileSync(path.join(st.dir, 'config', st.file), render(gains), 'utf8'); return 'ok'; }
   catch (e) { return 'err:' + e.code; }
 }
 
@@ -65,9 +73,9 @@ function setupScript(cfgDir) {
   const q = (s) => "'" + s.replace(/'/g, "''") + "'";
   return [
     `$f = ${q(path.join(cfgDir, FILE))}; $cfg = ${q(path.join(cfgDir, 'config.txt'))}`,
-    "if (!(Test-Path $f)) { Set-Content -Path $f -Value '# Cat Island equalizer' -Encoding ASCII }",
+    "if (!(Test-Path $f)) { Set-Content -Path $f -Value '# Noctark equalizer' -Encoding ASCII }",
     "icacls $f /grant '*S-1-5-32-545:M' | Out-Null",
-    "if (!(Select-String -Path $cfg -Pattern '^\\s*Include:\\s*cat-island\\.txt' -Quiet)) { Add-Content -Path $cfg -Value \"`r`nInclude: cat-island.txt\" -Encoding ASCII }",
+    "if (!(Select-String -Path $cfg -Pattern '^\\s*Include:\\s*noctark\\.txt' -Quiet)) { Add-Content -Path $cfg -Value \"`r`nInclude: noctark.txt\" -Encoding ASCII }",
   ].join('\n');
 }
 

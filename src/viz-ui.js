@@ -1,5 +1,5 @@
 /* =========================================================
-   Cat Island – penempatan visualizer & pemilih gaya
+   Noctark – penempatan visualizer & pemilih gaya
    Gaya garis tampil di samping judul / di notch; gaya melingkar
    membungkus cover. Mesinnya ada di visualizer.js.
    ========================================================= */

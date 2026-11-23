@@ -1,6 +1,6 @@
 # Membangun installer Windows (NSIS) di server GitHub.
 # Berjalan otomatis setiap push ke main, atau manual dari tab Actions ("Run workflow").
-# Hasil: artefak "Cat-Island-Setup" berisi Cat-Island-Setup-<versi>.exe
+# Hasil: artefak "Noctark-Setup" berisi Noctark-Setup-<versi>.exe
 name: Build installer
 
 on:
@@ -29,6 +29,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Cat-Island-Setup
+          name: Noctark-Setup
           path: dist/*.exe
           if-no-files-found: error

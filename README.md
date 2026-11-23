@@ -1,11 +1,11 @@
-# Cat Island 🐈‍⬛
+# Noctark 🌙🐈‍⬛
 
 Widget desktop Windows berbentuk "pulau" di tepi atas layar: pelacak tugas, timer Pomodoro,
 dan kontrol musik (Spotify / YouTube di browser) dengan equalizer yang mengikuti suara.
 
 ## Menjalankan
 
-- Klik dua kali **`Jalankan Cat Island.vbs`** (tanpa jendela konsol).
+- Klik dua kali **`Jalankan Noctark.vbs`** (tanpa jendela konsol).
 - Autostart: klik kanan ikon tray → **Jalankan saat Windows mulai**.
 
 Pertama kali / setelah folder dipindah (`node_modules` tidak ikut tersalin):
@@ -63,7 +63,7 @@ src/               tampilan — skrip biasa berbagi scope global, urutan muat di
 
 ## Data
 
-Tersimpan di `%APPDATA%\cat-island\` (tidak ikut bila folder proyek dibagikan):
+Tersimpan di `%APPDATA%\noctark\` (tidak ikut bila folder proyek dibagikan):
 
 - `tasks.json` — tugas
 - `settings.json` — pengaturan, termasuk YouTube API key

@@ -1,5 +1,5 @@
 /* =========================================================
-   Cat Island – tombol Mode Panggung di pil + pengiriman status ke panggung
+   Noctark – tombol Mode Panggung di pil + pengiriman status ke panggung
    Panggung (stage.html) menerima: video YouTube yang sedang diputar, posisi,
    status putar, cover, judul. Dikirim tiap detik selama panggung terbuka.
    ========================================================= */

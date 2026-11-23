@@ -1,5 +1,5 @@
 /* =========================================================
-   Cat Island – media dari Windows (Spotify, browser, dll.)
+   Noctark – media dari Windows (Spotify, browser, dll.)
    Menerima pesan bridge/media.ps1:
      art       -> cover dari Windows
      state     -> judul, artis, status, posisi
