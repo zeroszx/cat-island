@@ -153,6 +153,17 @@ api.onStage((m) => {
 
 api.onStageLevels((lv) => Viz.setFeed(lv));
 
+/* ---------------- lama istirahat ---------------- */
+// dihitung dari saat panggung dibuka; jam:menit:detik bila lewat 1 jam
+const restFrom = Date.now();
+function tickRest() {
+  const s = Math.floor((Date.now() - restFrom) / 1000), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), d = s % 60;
+  const pad = (x) => String(x).padStart(2, '0');
+  $('restTime').textContent = h ? `${h}:${pad(m)}:${pad(d)}` : `${m}:${pad(d)}`;
+}
+tickRest();
+setInterval(tickRest, 1000);
+
 /* ---------------- kontrol ---------------- */
 let closing = false;
 function close() {
