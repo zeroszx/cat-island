@@ -191,9 +191,13 @@ const Viz = (() => {
       g.stroke(); g.shadowBlur = 0;
     },
     ring({ g, w, h }, inner, t) {                          // helai terpilin yang berputar
-      const cx = w / 2, cy = h / 2, room = Math.min(w, h) / 2 - inner, R = inner + room * 0.5;
-      const amp = room * (0.28 + energy() * 0.75), K = 7, TWISTS = 3, STEPS = 120;
-      g.lineWidth = Math.max(0.9, inner / 90); g.strokeStyle = circInk(g, cx, cy, t, 0.9, 'rgba(244,236,220,.9)'); g.shadowColor = rgb ? 'rgba(255,255,255,.5)' : accent; g.shadowBlur = Math.max(2.5, inner / 40);
+      const cx = w / 2, cy = h / 2, room = Math.min(w, h) / 2 - inner, R = inner + room * 0.15;   // helai muncul dari balik cover/video
+      g.lineWidth = Math.max(0.9, inner / 90); g.shadowBlur = Math.min(6, Math.max(2.5, inner / 40));
+      // jangkauan terjauh = R + amp*1.3 (+ tebal garis & kilau) harus tetap di dalam kanvas,
+      // kalau tidak helai terpotong tepi -> sisi lurus & garis putus-putus
+      const pad = g.lineWidth / 2 + g.shadowBlur * 1.5 + 1;
+      const amp = Math.max(0, (room * 0.85 - pad) / 1.3) * Math.min(1, 0.27 + energy() * 0.73), K = 7, TWISTS = 3, STEPS = 120;
+      g.strokeStyle = circInk(g, cx, cy, t, 0.9, 'rgba(244,236,220,.9)'); g.shadowColor = rgb ? 'rgba(255,255,255,.5)' : accent;
       for (let k = 0; k < K; k++) {
         const ph = (k / K) * Math.PI * 2;
         g.beginPath();
