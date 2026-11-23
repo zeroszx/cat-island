@@ -14,6 +14,7 @@ function onArt(msg) {
   resetArt(msg.key);
   art.smtc = msg.data ? dataUrl(msg.data) : null;
   applyArt();
+  if (media.active && media.key === msg.key && art.smtc) ytLookup(media);   // cocokkan ulang dengan thumbnail ini
 }
 
 function onState(msg) {

@@ -30,7 +30,7 @@ contextBridge.exposeInMainWorld('island', {
 
   // media & YouTube
   mediaCmd: (cmd) => ipcRenderer.send('media-cmd', cmd),
-  ytLookup: (q) => ipcRenderer.invoke('yt-lookup', q),
+  ytLookup: (q, want) => ipcRenderer.invoke('yt-lookup', q, want),
   ytRecs: (id) => ipcRenderer.invoke('yt-recs', id),
   ytThumb: (id) => ipcRenderer.invoke('yt-thumb', id),
   ytAspect: (id) => ipcRenderer.invoke('yt-aspect', id),

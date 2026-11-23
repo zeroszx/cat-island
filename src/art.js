@@ -5,7 +5,8 @@
    - video latar: 6 detik pertama video YouTube, tanpa suara, diblur, diulang
    ========================================================= */
 let art = { key: '', smtc: null, hd: null, vid: null };
-let lookedUp = '';                 // key media yang sudah dicari di YouTube API
+let lookedUp = '';                 // key media (+thumbnail/durasi) yang sudah dicari di YouTube API
+let lookWait = { key: '', until: 0 };
 
 function resetArt(key) {
   if (key === art.key) return;
@@ -62,13 +63,30 @@ function applyArt() {
 }
 
 /* ---- YouTube: cari video dari judul -> thumbnail HD + id video ---- */
+// Judul saja tidak cukup (MV, lyric video, karaoke judulnya mirip) -> proses utama mencocokkan
+// durasi & thumbnail dari Windows dengan kandidat pencarian. Dicoba lagi saat thumbnail/durasi tiba
+// (gratis: kandidat sudah di-cache).
 async function ytLookup(msg) {
-  if (!settings.ytKey || !BROWSER.test(msg.source || '') || lookedUp === msg.key) return;
-  lookedUp = msg.key;
+  if (!settings.ytKey || !BROWSER.test(msg.source || '')) return;
+  if (!art.smtc) {   // beri waktu thumbnail Windows datang (maks 1,5 dtk)
+    if (lookWait.key !== msg.key) {
+      lookWait = { key: msg.key, until: Date.now() + 1500 };
+      setTimeout(() => { if (media.key === msg.key) ytLookup(media); }, 1600);
+    }
+    if (Date.now() < lookWait.until) return;
+  }
+  const dur = msg.duration > 0 ? Math.round(msg.duration) : 0;
+  const sig = `${msg.key}|${art.smtc ? art.smtc.length : 0}|${dur}`;
+  if (lookedUp === sig) return;
+  lookedUp = sig;
   // tanda seperti '-' atau '|' adalah operator pencarian YouTube ('-speed' = KECUALIKAN 'speed')
   const q = `${msg.title} ${msg.artist || ''}`.replace(/[-|"#~*()[\]{}:!?.,+]/g, ' ').replace(/\s+/g, ' ').trim();
-  const res = await api.ytLookup(q);
-  if (res?.id && art.key === msg.key) { art.vid = res.id; if (res.img) art.hd = res.img; applyArt(); syncVideo(); }
+  const res = await api.ytLookup(q, { dur, smtc: art.smtc });
+  if (!res || res.error || art.key !== msg.key) return;
+  console.log('[art] video cocok:', res.id || '(tidak ada)');
+  art.vid = res.id || null;
+  art.hd = res.id ? res.img || null : null;   // tak ada yang cocok -> cover asli dari Windows
+  applyArt(); syncVideo();
 }
 
 /* ---- video latar: loop 6 detik pertama, hanya saat pil terlihat & video diputar ---- */
