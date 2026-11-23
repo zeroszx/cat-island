@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "Widget desktop: tugas, Pomodoro, dan kontrol musik dengan equalizer",
   "author": "Cat Island",
+  "license": "MIT",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
